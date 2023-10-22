@@ -1,0 +1,17 @@
+{
+    "name": "bomberman-dom",
+    "version": "1.0.0",
+    "description": "A multiplayer game based on Bomberman.",
+    "main": "main.js",
+    "scripts": {
+        "start": "parcel index.html"
+    },
+    "dependencies": {
+        "mini-framework": "1.2.0"
+    },
+    "devDependencies": {
+        "@parcel/transformer-sass": "^2.8.0",
+        "parcel": "^2.8.0",
+        "typescript": "^4.9.3"
+      }
+}
