@@ -8,9 +8,6 @@ const Routes = {
     "/waiting-room": lobbyView(),
 }
 
-console.log("clg:")
-console.log(Routes[document.location.pathname]);
-
 const currentURL = document.location.pathname
 
 if (Routes[currentURL]) {
