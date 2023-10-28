@@ -11,6 +11,7 @@ export const usernameView = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        sessionStorage.setItem("username", username.getState())
         window.location.href = "/waiting-room"
     }
 
