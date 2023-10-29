@@ -4,11 +4,15 @@ import { broadcastMessage } from "./webSockets";
 
 //TODO:
 export class Game {
-    //private id: string;
-    private players: Player[];
+    //private _id: string;
+    private _players: Player[];
 
     constructor() {
-        this.players = [];
+        this._players = [];
         console.log("new game created");
+    }
+
+    public get players(): Player[] {
+        return this._players;
     }
 }
