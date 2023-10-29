@@ -15,9 +15,3 @@ if (Routes[currentURL]) {
 } else {
     console.log("poor path")
 }
-
-
-
-
-
-
