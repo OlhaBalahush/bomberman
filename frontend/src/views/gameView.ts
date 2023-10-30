@@ -2,7 +2,6 @@ import { createDOMElement, useStateManager } from "mini-framework";
 
 export const gameView = () => {
 
-
     let gameTime = useStateManager("240") //TODO connect with be
     let PlayerHealth = useStateManager("3")//TODO connect with be
 
