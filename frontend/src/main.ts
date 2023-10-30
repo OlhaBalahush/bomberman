@@ -1,11 +1,13 @@
 import { usernameView } from "./views/usernameView";
 import { lobbyView } from "./views/lobbyView";
+import { errorView } from "./views/errorView";
 
 
 //add your route here
 const Routes = {
     "/": usernameView(),
     "/waiting-room": lobbyView(),
+    "/error": errorView(),
 }
 
 const currentURL = document.location.pathname
