@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 class Player {
     private _token: string
     private _username: string
@@ -12,7 +10,6 @@ class Player {
     private _position: { x: number, y: number }
 
     constructor(username: string) {
-        this._token = uuidv4()
         this._username = username
         this._lives = 3
         this._powerups = {
@@ -25,8 +22,8 @@ class Player {
     }
 
     // made token, not sure if needed
-    get token(): string {
-        return this._token
+    set token(token: string) {
+        this._token = token
     }
 
     get username(): string {
