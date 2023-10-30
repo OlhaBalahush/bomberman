@@ -15,5 +15,5 @@ const currentURL = document.location.pathname
 if (Routes[currentURL]) {
     document.body.appendChild(Routes[currentURL].element);
 } else {
-    console.log("poor path")
+    document.body.appendChild(Routes['/error'].element);
 }
