@@ -1,0 +1,4 @@
+#custom-scrollbar {
+    scrollbar-width: thin !important;
+    scrollbar-color: transparent transparent !important;
+}
