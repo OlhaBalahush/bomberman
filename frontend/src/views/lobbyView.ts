@@ -13,6 +13,7 @@ export const lobbyView = () => {
             //TODO save the gotten number to the playercountInLobby variable
 
         })
+        .catch(err => console.log(err));
 
     const socket = new WebSocket("ws://localhost:8080/ws")
 
@@ -31,6 +32,10 @@ export const lobbyView = () => {
         }
 
     });
+
+
+
+
     //TODO make sure that everything here works properly because currently it is full of placeholders
     socket.addEventListener('message', (event) => {
         console.log('WebSocket message received:', event);
