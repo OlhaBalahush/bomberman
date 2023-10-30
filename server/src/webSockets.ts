@@ -14,7 +14,7 @@ export function initWsServer(server: http.Server) {
 
     wsServer.on("connection", (connection: WebSocket) => {
         handleWsClientConnect(connection);
-        // connection.on("message", (message: string) => handleClientMessages(message))
+        connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
         connection.on("close", () => console.log("Client disconnected"))
     })
@@ -35,29 +35,29 @@ function handleWsClientConnect(connection: WebSocket) {
     console.log(`WS: new client connected, id: ${clientId}`);
 }
 
-// function handleClientMessages(message: string) {
-//     const messageJSON = JSON.parse(message);
-//     console.log(messageJSON);
+function handleClientMessages(message: string) {
+    const messageJSON = JSON.parse(message);
+    console.log(messageJSON);
 
-//     //TODO: Implement handling different type of client messages
-//     switch (messageJSON.type) {
-//         // example
-//         case "create": {
-//             const clientId: string = messageJSON.clientId;
-//             const gameId: string = uuidv4();
-//     //gamesHashMap.set(gameId, { id: gameId, players: [clientId] });
+    //TODO: Implement handling different type of client messages
+    switch (messageJSON.type) {
+        // example
+        case "create": {
+            const clientId: string = messageJSON.clientId;
+            const gameId: string = uuidv4();
+    //gamesHashMap.set(gameId, { id: gameId, players: [clientId] });
 
-//             const payLoad = {
-//                 "type": "create",
-//                 "game": gameId
-//             }
-//             break;
-//         }
-//         default: {
-//             break;
-//         }
-//     }
-// }
+            const payLoad = {
+                "type": "create",
+                "game": gameId
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
 
 export function broadcastMessage() {
 
