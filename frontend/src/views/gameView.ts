@@ -8,9 +8,9 @@ export const gameView = () => {
 
 
     const makeChatMessage = (msgSender: string, msgText: string) => {
-        return createDOMElement("div", { class: "flex mb-2 ml-1 mr-1 mt-2 mb-2" }, [
-            createDOMElement("div", { class: "bg-gray-600 text-white p-2 rounded-l-lg " }, [msgSender + ": "]),
-            createDOMElement("div", { class: "bg-gray-300 p-2 rounded-r-lg" }, [msgText])
+        return createDOMElement("div", { class: "flex mb-1 ml-0 mr-0 mt-0 mb-2" }, [
+            createDOMElement("div", { class: "text-neutral-600" }, [msgSender + ":"]),
+            createDOMElement("div", { class: "" }, [msgText])
         ]);
     }
 
@@ -40,29 +40,16 @@ export const gameView = () => {
         console.log("chat ws connection closed")
     });
 
-
-    //ws conn here:
-    // if message.received === new chat:
-    //append chat to chatlist
-    const chatHisotryContainer = document.getElementById("chat-history")
-
-    if (chatHisotryContainer) {
-        chatHisotryContainer.appendChild(makeChatMessage("test", "test message"))
-    }
-    //TODO: figure out why is this previous commented text not working.
-
-
     const handleSumbit = (e) => {
         console.log("key:", e.key)
         console.log("value:", e.value)
         if (e.key === "Enter") {
             //send message to BE
             console.log("trying to send message: ", e.target.value)
+            chatWsSocket.send(JSON.stringify({ type: "message", data: { sender: sessionStorage.getItem("username"), message: e.target.value } })) //TODO: make sure this works after BE is done.
             e.target.value = ""
         }
     }
-
-
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
         createDOMElement("div", { class: "w-[1200px] h-[1024px] border-1 border-black flex flex-col", id: "gameBox" }, [
@@ -75,7 +62,8 @@ export const gameView = () => {
                 createDOMElement("div", { class: "w-[300px] flex flex-col bg-neutral-200 border-2 border-black", id: "outter-chat-container" }, [
                     createDOMElement("div", { class: "h-[60px] border-b border-black flex items-center justify-center font-inter text-3xl font-normal text-black uppercase" }, ["chat"]), // Chat text
                     createDOMElement("div", { class: "p-4 flex-1" }, [
-                        createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" }, [makeChatMessage("user1", "this is my first message"), makeChatMessage("user2", "hello, nice to meet you user 1")]), // Chat history //todo: make this work
+                        createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" },
+                            [makeChatMessage("user1", "this is my first message"), makeChatMessage("user2", "hello, nice to meet you user 1")]), // Chat history //todo: remove the templates
                         createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 border-2 border-black", placeholder: "Enter your message," }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
                     ]) // Inner container
                 ]), // Chat bar on the left
