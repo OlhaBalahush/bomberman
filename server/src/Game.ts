@@ -1,5 +1,5 @@
 
-import { Player } from "./player";
+import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
 
 //TODO:

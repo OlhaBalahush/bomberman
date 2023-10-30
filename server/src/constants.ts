@@ -1,6 +1,8 @@
-export enum WebsocketEvents {
+export enum WsMessageTypes {
     //TODO: map all ws events
     Connect = "connect",
     EnterLobby = "enterLobby",
-    ChatMessage = "chatMessage"
+    TwentySecondTimer = "startTwentySecondTimer",
+    TenSecondTimer = "startTenSecondTimer",
+    ChatMessage = "chatMessage",
 }

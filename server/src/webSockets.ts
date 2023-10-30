@@ -1,14 +1,16 @@
 import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 import http from 'http';
-import { WebsocketEvents } from './constants'
-import { Lobby } from "./lobby";
-import { Player } from "./player";
+import { WsMessageTypes } from './constants'
+import { Lobby } from "./Lobby";
+import { Player } from "./Player";
+import { LobbyTimer } from "./LobbyTimer";
 import { WsClientMessage, WsServerMessage } from "./models/wsMessage"
 
 //storing all clients that are connected
 const clientsHashMap = new Map<string, WebSocket>();
-const lobbiesList: Lobby[] = [];
+//all active waitingrooms that have at least one player in it
+const lobbiesHashMap = new Map<string, Lobby>();
 
 export function initWsServer(server: http.Server) {
     const wsServer = new WebSocket.Server({ server });
@@ -27,11 +29,11 @@ function handleWsClientConnect(connection: WebSocket): string {
     clientsHashMap.set(clientId, connection);
 
     const payLoad: WsServerMessage = {
-        "type": WebsocketEvents.Connect,
+        "type": WsMessageTypes.Connect,
         "clientId": clientId
     }
 
-    // send back the connected message to client, client needs to include the id to all future message to be able to identify the connection later
+    // sending back the client id which client needs to include in all of the future messages to be able to identify the connection later
     connection.send(JSON.stringify(payLoad))
 
     console.log(`WS: new client connected, id: ${clientId}`);
@@ -39,63 +41,80 @@ function handleWsClientConnect(connection: WebSocket): string {
 }
 
 function handleClientMessages(message: string) {
-    try {
-        const messageJSON: WsClientMessage = JSON.parse(message);
-        console.log("WS message from client: " + message);
-
+    const messageJSON = parseClientMessage(message);
+    if (messageJSON) {
         switch (messageJSON.type) {
             //client sends enterLobby message after player enters username
-            case WebsocketEvents.EnterLobby: {
-                const clientId: string = messageJSON.clientId;
-                const username: string = messageJSON.username;
-
-                const newPlayer: Player = new Player(clientId, username);
+            case WsMessageTypes.EnterLobby: {
+                const newPlayer: Player = new Player(messageJSON.clientId, messageJSON.username);
                 //adding player to (new or alredy existing non-full) lobby
                 const lobbyEntered: Lobby = addPlayerToLobby(newPlayer);
-
-                //notifying clients about new player joining lobby + new count of players in lobby
-                const messagePayLoad: WsServerMessage = {
-                    "type": WebsocketEvents.EnterLobby,
-                    "player": newPlayer.getData(),
-                    "playerCount": lobbyEntered.getCountOfPlayers(),
-                }
-
-                broadcastMessage(messagePayLoad, lobbyEntered.players)
-
+                //notifying clients about change in the number of players in lobby
+                lobbyEntered.broadcastPlayerCountChange();
                 break;
             }
             default: {
                 break;
             }
         }
+    }
+}
+
+function parseClientMessage(message: string): WsClientMessage | null {
+    try {
+        const messageJSON: WsClientMessage = JSON.parse(message);
+        console.log("WS message from client: " + message);
+        return messageJSON;
     } catch (error) {
-        console.error("Unable to parse message, check the format : ", error)
-        return
+        console.error("Unable to parse message, check the format:", error);
+        return null;
     }
 }
 
 function addPlayerToLobby(player: Player): Lobby {
-
     const lobbyToJoin = findEmptyLobby();
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
         const lobbyId: string = uuidv4();
         const newLobby: Lobby = new Lobby(lobbyId);
         newLobby.addPlayer(player);
-        lobbiesList.push(newLobby);
+        lobbiesHashMap.set(lobbyId, newLobby);
         return newLobby;
     } else {
         lobbyToJoin?.addPlayer(player);
+        //check if 2 players start count
+        if (lobbyToJoin?.getCountOfPlayers() === 2) {
+            lobbyToJoin.timer.start(
+                20,
+                lobbyToJoin.broadcastTimerChange,
+                () => {
+                    //start 10 second timer, if 20 sec finished but less than 4 players in lobby
+                    lobbyToJoin.timer.stop();
+                    lobbyToJoin.timer.start(10, lobbyToJoin.broadcastTimerChange, startGame);
+                });
+        }
+
+        if (lobbyToJoin?.getCountOfPlayers() === 4) {
+            //start 10 seconds timer
+            if (lobbyToJoin.timer) {
+                lobbyToJoin.timer.stop();
+            }
+            lobbyToJoin.timer.start(10, lobbyToJoin.broadcastTimerChange, startGame);
+        }
     }
     return lobbyToJoin as Lobby;
 }
 
+function startGame() {
+
+}
+
 function findEmptyLobby(): Lobby | null {
-    if (lobbiesList.length === 0) {
+    if (lobbiesHashMap.size === 0) {
         return null;
     }
 
-    for (const lobby of lobbiesList) {
+    for (const lobby of lobbiesHashMap.values()) {
         if (!lobby.isFull()) {
             return lobby;
         }
@@ -119,15 +138,31 @@ export function broadcastMessage(message: WsServerMessage, players: Player[]) {
     }
 }
 
-function handleClientDisconnect(clientId: string) {
+function handleClientDisconnect(clientId: string): void {
     clientsHashMap.delete(clientId);
     console.log(`Client ${clientId} disconnected`);
-    //TODO: remove player from lobby, game, chat, send update to other clients in the same lobby,game,chat
+
+    // Remove the player from the Lobby's players list & notify remaining clients
+    lobbiesHashMap.forEach((lobby, lobbyId) => {
+        if (lobby.hasPlayer(clientId)) {
+            lobby.removePlayer(clientId);
+
+            if (lobby.getCountOfPlayers() === 0) {
+                lobbiesHashMap.delete(lobbyId);
+            } else {
+                lobby.broadcastPlayerCountChange();
+            }
+        }
+    });
+
+    //TODO: remove player from  game and chat if player belongs to either of those, send update to other clients in the same game,chat
 }
 
 //TODO:
 
-// when 2 users in waitingroom, timer should start - backend driven, when timer runs out backend sends message to frontend to start game
+
+// Handle case if player count in lobby goes under 2 during timer
+
 // backend - create new game after timer runs out, send game id and initial game state to frontend (user positions, map? and probably more info) 
 // also create new chat together with game start, send chat id to frontend
 

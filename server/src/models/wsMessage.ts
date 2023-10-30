@@ -1,4 +1,4 @@
-import { WebsocketEvents } from '../constants'
+import { WsMessageTypes } from '../constants'
 
 export type WsClientMessage =
     | EnterLobbyClientMessage
@@ -6,30 +6,33 @@ export type WsClientMessage =
 
 export type WsServerMessage =
     | ConnectServerMessage
+    | TimerUpdates
     | EnterLobbyServerMessage;
 
 type EnterLobbyClientMessage = {
-    type: WebsocketEvents.EnterLobby,
+    type: WsMessageTypes.EnterLobby,
     clientId: string,
     username: string,
 };
 
 type ChatClientMessage = {
-    type: WebsocketEvents.ChatMessage;
+    type: WsMessageTypes.ChatMessage;
     clientId: string,
     content: string;
 };
 
 type ConnectServerMessage = {
-    "type": WebsocketEvents.Connect,
+    "type": WsMessageTypes.Connect,
     "clientId": string
 }
 
+//user info who joined or left lobby needed as well?
 type EnterLobbyServerMessage = {
-    "type": WebsocketEvents.EnterLobby,
-    "player": {
-        id: string,
-        username: string,
-    },
+    "type": WsMessageTypes.EnterLobby,
     "playerCount": number,
+}
+
+type TimerUpdates = {
+    "type": WsMessageTypes.TwentySecondTimer | WsMessageTypes.TenSecondTimer,
+    "seconds": number,
 }
