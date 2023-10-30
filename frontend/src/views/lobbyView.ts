@@ -25,9 +25,9 @@ export const lobbyView = () => {
         const PlayersUsername = sessionStorage.getItem('username');
 
         if (PlayersUsername) {
-            socket.send(PlayersUsername);
+            socket.send(JSON.stringify({ Username: PlayersUsername }));
         } else {
-            socket.send("Error getting Players username")
+            socket.send(JSON.stringify({ error: "error getting players username" }))
         }
 
     });
