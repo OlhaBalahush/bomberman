@@ -40,8 +40,6 @@ export const gameView = () => {
     });
 
     const handleSumbit = (e) => {
-        console.log("key:", e.key)
-        console.log("value:", e.value)
         if (e.key === "Enter") {
             //send message to BE
             console.log("trying to send message: ", e.target.value)
