@@ -49,7 +49,7 @@ export class Lobby {
             "type": timerType === 20 ? WsMessageTypes.TwentySecondTimer : WsMessageTypes.TenSecondTimer,
             "seconds": remainingTime,
         }
-        broadcastMessage(messagePayLoad, this._players)
+        broadcastMessage(messagePayLoad, this.players)
     }
 
     get id(): string {

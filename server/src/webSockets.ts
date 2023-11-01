@@ -4,7 +4,6 @@ import http from 'http';
 import { WsMessageTypes } from './constants'
 import { Lobby } from "./Lobby";
 import { Player } from "./Player";
-import { LobbyTimer } from "./LobbyTimer";
 import { WsClientMessage, WsServerMessage } from "./models/wsMessage"
 
 //storing all clients that are connected
@@ -48,9 +47,7 @@ function handleClientMessages(message: string) {
             case WsMessageTypes.EnterLobby: {
                 const newPlayer: Player = new Player(messageJSON.clientId, messageJSON.username);
                 //adding player to (new or alredy existing non-full) lobby
-                const lobbyEntered: Lobby = addPlayerToLobby(newPlayer);
-                //notifying clients about change in the number of players in lobby
-                lobbyEntered.broadcastPlayerCountChange();
+                addPlayerToLobby(newPlayer);
                 break;
             }
             default: {
@@ -71,7 +68,7 @@ function parseClientMessage(message: string): WsClientMessage | null {
     }
 }
 
-function addPlayerToLobby(player: Player): Lobby {
+function addPlayerToLobby(player: Player): void {
     const lobbyToJoin = findEmptyLobby();
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
@@ -79,34 +76,36 @@ function addPlayerToLobby(player: Player): Lobby {
         const newLobby: Lobby = new Lobby(lobbyId);
         newLobby.addPlayer(player);
         lobbiesHashMap.set(lobbyId, newLobby);
-        return newLobby;
+        newLobby.broadcastPlayerCountChange();
+        return;
     } else {
         lobbyToJoin?.addPlayer(player);
+        //notifying clients about change in the number of players in lobby
+        lobbyToJoin?.broadcastPlayerCountChange();
         //check if 2 players start count
         if (lobbyToJoin?.getCountOfPlayers() === 2) {
             lobbyToJoin.timer.start(
                 20,
-                lobbyToJoin.broadcastTimerChange,
+                lobbyToJoin,
                 () => {
                     //start 10 second timer, if 20 sec finished but less than 4 players in lobby
                     lobbyToJoin.timer.stop();
-                    lobbyToJoin.timer.start(10, lobbyToJoin.broadcastTimerChange, startGame);
+                    lobbyToJoin.timer.start(10, lobbyToJoin, startGame);
                 });
         }
 
         if (lobbyToJoin?.getCountOfPlayers() === 4) {
-            //start 10 seconds timer
+            //start 10 seconds timer when 4th playe joins
             if (lobbyToJoin.timer) {
                 lobbyToJoin.timer.stop();
             }
-            lobbyToJoin.timer.start(10, lobbyToJoin.broadcastTimerChange, startGame);
+            lobbyToJoin.timer.start(10, lobbyToJoin, startGame);
         }
     }
-    return lobbyToJoin as Lobby;
 }
 
 function startGame() {
-
+    console.log("start game")
 }
 
 function findEmptyLobby(): Lobby | null {
@@ -149,8 +148,15 @@ function handleClientDisconnect(clientId: string): void {
 
             if (lobby.getCountOfPlayers() === 0) {
                 lobbiesHashMap.delete(lobbyId);
-            } else {
-                lobby.broadcastPlayerCountChange();
+                return;
+            }
+
+            lobby.broadcastPlayerCountChange();
+
+            if (lobby.getCountOfPlayers() === 1 && lobby.timer.isActive()) {
+                //Stopping timer if player count in lobby goes under 2 during timer
+                lobby.timer.stop();
+                lobby.broadcastTimerChange(-1, -1);
             }
         }
     });
@@ -159,9 +165,6 @@ function handleClientDisconnect(clientId: string): void {
 }
 
 //TODO:
-
-
-// Handle case if player count in lobby goes under 2 during timer
 
 // backend - create new game after timer runs out, send game id and initial game state to frontend (user positions, map? and probably more info) 
 // also create new chat together with game start, send chat id to frontend
