@@ -1,5 +1,5 @@
 import { createDOMElement, useStateManager } from "mini-framework";
-let clientId: string;
+
 export const lobbyView = () => {
 
     let playerCountInLobby = useStateManager("1")
@@ -33,15 +33,9 @@ export const lobbyView = () => {
     });
     //TODO make sure that everything here works properly because currently it is full of placeholders
     socket.addEventListener('message', (event) => {
+        console.log('WebSocket message received:', event);
 
-        let messageJSON = JSON.parse(event.data);
-        console.log('WebSocket message received:', messageJSON);
-
-        switch (messageJSON.type) {
-            case "connect":
-                clientId = messageJSON.clientId;
-                console.log("connection id:" + clientId);
-                break;
+        switch (event.type) {
             case "startTwentySecondTimer":
 
                 TimerCountDown.setState(event.data)
