@@ -11,28 +11,28 @@ export type WsServerMessage =
 
 type EnterLobbyClientMessage = {
     type: WsMessageTypes.EnterLobby,
-    clientId: string,
+    clientID: string,
     username: string,
 };
 
 type ChatClientMessage = {
     type: WsMessageTypes.ChatMessage;
-    clientId: string,
+    clientID: string,
     content: string;
 };
 
 type ConnectServerMessage = {
-    "type": WsMessageTypes.Connect,
-    "clientId": string
+    type: WsMessageTypes.Connect,
+    clientID: string
 }
 
 //user info who joined or left lobby needed as well?
 type EnterLobbyServerMessage = {
-    "type": WsMessageTypes.EnterLobby,
-    "playerCount": number,
+    type: WsMessageTypes.EnterLobby,
+    playerCount: number,
 }
 
 type TimerUpdates = {
-    "type": WsMessageTypes.TwentySecondTimer | WsMessageTypes.TenSecondTimer,
-    "seconds": number,
+    type: WsMessageTypes.TwentySecondTimer | WsMessageTypes.TenSecondTimer,
+    seconds: number,
 }

@@ -15,28 +15,28 @@ export function initWsServer(server: http.Server) {
     const wsServer = new WebSocket.Server({ server });
 
     wsServer.on("connection", (connection: WebSocket) => {
-        const clientId: string = handleWsClientConnect(connection);
+        const clientID: string = handleWsClientConnect(connection);
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
-        connection.on("close", () => handleClientDisconnect(clientId))
+        connection.on("close", () => handleClientDisconnect(clientID))
     })
 }
 
 function handleWsClientConnect(connection: WebSocket): string {
-    const clientId: string = uuidv4();
-    clientsHashMap.set(clientId, connection);
+    const clientID: string = uuidv4();
+    clientsHashMap.set(clientID, connection);
 
     const payLoad: WsServerMessage = {
         "type": WsMessageTypes.Connect,
-        "clientId": clientId
+        "clientID": clientID
     }
 
     // sending back the client id which client needs to include in all of the future messages to be able to identify the connection later
     connection.send(JSON.stringify(payLoad))
 
-    console.log(`WS: new client connected, id: ${clientId}`);
-    return clientId;
+    console.log(`WS: new client connected, id: ${clientID}`);
+    return clientID;
 }
 
 function handleClientMessages(message: string) {
@@ -45,7 +45,7 @@ function handleClientMessages(message: string) {
         switch (messageJSON.type) {
             //client sends enterLobby message after player enters username
             case WsMessageTypes.EnterLobby: {
-                const newPlayer: Player = new Player(messageJSON.clientId, messageJSON.username);
+                const newPlayer: Player = new Player(messageJSON.clientID, messageJSON.username);
                 //adding player to (new or alredy existing non-full) lobby
                 addPlayerToLobby(newPlayer);
                 break;
@@ -72,10 +72,10 @@ function addPlayerToLobby(player: Player): void {
     const lobbyToJoin = findEmptyLobby();
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
-        const lobbyId: string = uuidv4();
-        const newLobby: Lobby = new Lobby(lobbyId);
+        const lobbyID: string = uuidv4();
+        const newLobby: Lobby = new Lobby(lobbyID);
         newLobby.addPlayer(player);
-        lobbiesHashMap.set(lobbyId, newLobby);
+        lobbiesHashMap.set(lobbyID, newLobby);
         newLobby.broadcastPlayerCountChange();
         return;
     } else {
@@ -137,17 +137,17 @@ export function broadcastMessage(message: WsServerMessage, players: Player[]) {
     }
 }
 
-function handleClientDisconnect(clientId: string): void {
-    clientsHashMap.delete(clientId);
-    console.log(`Client ${clientId} disconnected`);
+function handleClientDisconnect(clientID: string): void {
+    clientsHashMap.delete(clientID);
+    console.log(`Client ${clientID} disconnected`);
 
     // Remove the player from the Lobby's players list & notify remaining clients
-    lobbiesHashMap.forEach((lobby, lobbyId) => {
-        if (lobby.hasPlayer(clientId)) {
-            lobby.removePlayer(clientId);
+    lobbiesHashMap.forEach((lobby, lobbyID) => {
+        if (lobby.hasPlayer(clientID)) {
+            lobby.removePlayer(clientID);
 
             if (lobby.getCountOfPlayers() === 0) {
-                lobbiesHashMap.delete(lobbyId);
+                lobbiesHashMap.delete(lobbyID);
                 return;
             }
 
@@ -160,14 +160,4 @@ function handleClientDisconnect(clientId: string): void {
             }
         }
     });
-
-    //TODO: remove player from  game and chat if player belongs to either of those, send update to other clients in the same game,chat
 }
-
-//TODO:
-
-// backend - create new game after timer runs out, send game id and initial game state to frontend (user positions, map? and probably more info) 
-// also create new chat together with game start, send chat id to frontend
-
-//during game game status events from frontend, backend sends info to all connections related to that game
-//chat updates sent to the connections related to the chat id

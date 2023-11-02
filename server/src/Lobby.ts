@@ -28,12 +28,12 @@ export class Lobby {
 
     isFull = (): boolean => this.getCountOfPlayers() === 4;
 
-    removePlayer(playerId: string): void {
-        this._players = this._players.filter(player => player.id !== playerId);
+    removePlayer(playerID: string): void {
+        this._players = this._players.filter(player => player.id !== playerID);
     }
 
-    hasPlayer(playerId: string): boolean {
-        return this._players.some(player => player.id === playerId);
+    hasPlayer(playerID: string): boolean {
+        return this._players.some(player => player.id === playerID);
     }
 
     broadcastPlayerCountChange(): void {
