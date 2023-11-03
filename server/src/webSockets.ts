@@ -4,12 +4,14 @@ import http from 'http';
 import { WsMessageTypes } from './constants'
 import { Lobby } from "./Lobby";
 import { Player } from "./Player";
+import { Game } from "./Game";
 import { WsClientMessage, WsServerMessage } from "./models/wsMessage"
 
 //storing all clients that are connected
 const clientsHashMap = new Map<string, WebSocket>();
 //all active waitingrooms that have at least one player in it
 const lobbiesHashMap = new Map<string, Lobby>();
+const gamesHashMap = new Map<string, Game>();
 
 export function initWsServer(server: http.Server) {
     const wsServer = new WebSocket.Server({ server });
@@ -104,8 +106,16 @@ function addPlayerToLobby(player: Player): void {
     }
 }
 
-function startGame() {
-    console.log("start game")
+function startGame(lobby: Lobby): void {
+    const gameID: string = uuidv4();
+    const newGame = new Game(gameID);
+    gamesHashMap.set(gameID, newGame)
+
+    for (const player of lobby.players) {
+        newGame.addPlayer(player);
+    }
+
+    newGame.broadcastGameStart();
 }
 
 function findEmptyLobby(): Lobby | null {

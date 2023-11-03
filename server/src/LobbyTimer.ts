@@ -9,10 +9,9 @@ export class LobbyTimer {
 
   start(
     secondsToCount: number,
-    //function to call when time left on counter changes
     lobby: Lobby,
     //function to call when timer runs out
-    onComplete: () => void) {
+    onComplete: (lobby: Lobby) => void) {
     lobby.broadcastTimerChange(secondsToCount, secondsToCount)
     let remainingTime = secondsToCount - 1;
     this._timer = setInterval(() => {
@@ -20,7 +19,7 @@ export class LobbyTimer {
       if (remainingTime === 0) {
         clearInterval(this._timer!);
         this._timer = null;
-        onComplete();
+        onComplete(lobby);
       }
       remainingTime--;
     }, 1000);
