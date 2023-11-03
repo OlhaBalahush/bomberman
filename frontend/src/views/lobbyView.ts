@@ -44,33 +44,32 @@ export const lobbyView = () => {
                     fristTimerText.classList.toggle('hidden');
                 }
 
-                if (!isHidden && messageData.seconds === "0" && fristTimerText) {
-                    fristTimerText.classList.toggle('hidden');
-                }
-
-                if (fristTimerText?.innerText) {
-                    fristTimerText.innerText = "the countdown will begin in " + timerSeconds + " seconds"
+                if (fristTimerText) {
+                    fristTimerText.innerText = "the countdown will begin in " + String(timerSeconds) + " seconds"
                 }
 
                 break
 
             case "startTenSecondTimer":
-                //check that previous text is hidden:
+                const timerseconds = messageData.seconds
+
+                const secondTimer = document.getElementById("secondTimer")
+
                 const previousTimer = document.getElementById("firstTimer")
-                if (previousTimer && !previousTimer.classList.contains('hidden')) {
-                    previousTimer.classList.toggle('hidden');
+
+                let isSecondHidden = true;
+
+                if (previousTimer && !previousTimer.classList.contains("hidden")) {
+                    previousTimer.classList.toggle("hidden")
                 }
 
                 //if there are less than 2 people in the lobby all of a sudden:
                 if (messageData.seconds === -1) {
+                    if (secondTimer && !secondTimer.classList.contains('hidden')) {
+                        secondTimer.classList.toggle('hidden');
+                    }
                     break
                 }
-
-                const timerseconds = "0"
-
-                const secondTimer = document.getElementById("secondTimer")
-
-                let isSecondHidden = true;
 
                 if (secondTimer) {
                     isSecondHidden = secondTimer.classList.contains('hidden');
@@ -80,8 +79,8 @@ export const lobbyView = () => {
                     secondTimer.classList.toggle('hidden');
                 }
 
-                if (secondTimer?.innerText) {
-                    secondTimer.innerText = "the game will start in " + timerseconds + " seconds"
+                if (secondTimer) {
+                    secondTimer.innerText = "the game will start in " + String(timerseconds) + " seconds"
                 }
 
                 break
