@@ -7,7 +7,8 @@ export type WsClientMessage =
 export type WsServerMessage =
     | ConnectServerMessage
     | TimerUpdates
-    | EnterLobbyServerMessage;
+    | EnterLobbyServerMessage
+    | StartGameMessage;
 
 type EnterLobbyClientMessage = {
     type: WsMessageTypes.EnterLobby,
@@ -35,4 +36,8 @@ type EnterLobbyServerMessage = {
 type TimerUpdates = {
     type: WsMessageTypes.TwentySecondTimer | WsMessageTypes.TenSecondTimer,
     seconds: number,
+}
+
+type StartGameMessage = {
+    type: WsMessageTypes.StartGame,
 }
