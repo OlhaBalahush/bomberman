@@ -2,18 +2,20 @@
 import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
 import { WsServerMessage } from "./models/wsMessage"
-import { WsMessageTypes } from './constants'
+import { Message, WsMessageTypes } from './constants'
 
 //TODO:
 export class Game {
     private _id: string;
     private _players: Player[];
+    private _chat: Message[];
     //Chat object here?
     //TODO: game status tracker, either separate object or directly here
 
     constructor(id: string) {
         this._id = id;
         this._players = [];
+        this._chat = []
         console.log("new game created");
     }
 
@@ -23,6 +25,11 @@ export class Game {
 
     removePlayer(playerID: string): void {
         this._players = this._players.filter(player => player.id !== playerID);
+    }
+
+    addMessage(msg:string, username:string){
+        let newMessage = new Message(msg, username)
+        this._chat.push(newMessage)
     }
 
     broadcastGameStart(): void {

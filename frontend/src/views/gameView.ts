@@ -1,4 +1,5 @@
 import { createDOMElement, useStateManager } from "mini-framework";
+import { socket } from "../websocket";
 
 export const gameView = () => {
 
@@ -14,36 +15,11 @@ export const gameView = () => {
     }
 
 
-    //TODO: add ws logic here:
-    const chatWsSocket = new WebSocket("ws://localhost:8080/chat");
-
-    chatWsSocket.addEventListener('open', (event) => {
-
-    });
-
-
-    chatWsSocket.addEventListener('message', (event) => {
-        switch (event.type) {
-            case "message":
-                //save the message to the chat history
-                const chatHisotryContainer = document.getElementById("chat-history")
-
-                if (chatHisotryContainer) {
-                    chatHisotryContainer.appendChild(makeChatMessage(event.data.sender, event.data.message)) // TODO: make sure this works afte BE is done.
-                }
-                break
-        }
-    })
-
-    chatWsSocket.addEventListener('close', (event) => {
-        console.log("chat ws connection closed")
-    });
-
     const handleSumbit = (e) => {
         if (e.key === "Enter") {
             //send message to BE
             console.log("trying to send message: ", e.target.value)
-            chatWsSocket.send(JSON.stringify({ type: "message", data: { sender: sessionStorage.getItem("username"), message: e.target.value } })) //TODO: make sure this works after BE is done.
+            socket.send(JSON.stringify({ type: "message", data: { sender: sessionStorage.getItem("username"), message: e.target.value } })) //TODO: make sure this works after BE is done.
             e.target.value = ""
         }
     }
