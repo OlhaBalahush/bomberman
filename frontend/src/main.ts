@@ -12,10 +12,23 @@ const Routes = {
     "/game": gameView
 }
 
+export const navigateTo = (pathname:string)=>{
+    var e = document.body
+    var child = e.lastElementChild;  
+    while (child) { 
+        e.removeChild(child); 
+        child = e.lastElementChild; 
+    } 
+    window.history.pushState({}, pathname, window.location.origin + pathname);
+    const view = Routes[pathname]()
+
+    if(view) document.body.appendChild(view.element)
+}
+
 const currentURL = document.location.pathname
 
 if (Routes[currentURL]) {
-    document.body.appendChild(Routes[currentURL]().element);
+    navigateTo(currentURL)
 } else {
     document.body.appendChild(Routes['/error']().element);
 }
