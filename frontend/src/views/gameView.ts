@@ -24,6 +24,7 @@ export const gameView = () => {
     const handleSumbit = (e) => {
         if (e.key === "Enter") {
             //send message to BE
+            if (e.target.value === "") return
             console.log("trying to send message: ", e.target.value)
             sendEvent(WsMessageTypes.ChatMessage, { sender: sessionStorage.getItem("username"), content: e.target.value, gameID: sessionStorage.getItem("gameID") } )
             e.target.value = ""

@@ -1,5 +1,7 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
+import { EnterLobbyServerMessage, TimerUpdates } from "./models/wsMessage";
+import { addPlayerCount, tenSecondTimer, twentySecondTimer } from "./views/lobbyView";
 
 export let socket:WebSocket
 
@@ -26,65 +28,13 @@ export const connectWS= () => {
         const eventData = data.payload
         switch (data.type) {
             case WsMessageTypes.EnterLobby:
-                const playerCountContainer = document.getElementById("playerCount")
-                const playerCount = eventData.playerCount
-
-                if (playerCountContainer) {
-                    playerCountContainer.innerText = playerCount + " user(s) in the lobby right now"
-                }
-
+                addPlayerCount(eventData as EnterLobbyServerMessage)
                 break;
             case WsMessageTypes.TwentySecondTimer:
-                const timerSeconds = eventData.seconds
-                const fristTimerText = document.getElementById("firstTimer")
-                let isHidden = true;
-
-                if (fristTimerText) {
-                    isHidden = fristTimerText.classList.contains('hidden');
-                }
-
-                if (isHidden && fristTimerText) {
-                    fristTimerText.classList.toggle('hidden');
-                }
-
-                if (fristTimerText) {
-                    fristTimerText.innerText = "the countdown will begin in " + String(timerSeconds) + " seconds"
-                }
-
+                twentySecondTimer(eventData as TimerUpdates)
                 break
             case WsMessageTypes.TenSecondTimer:
-                const timerseconds = eventData.seconds
-
-                const secondTimer = document.getElementById("secondTimer")
-
-                const previousTimer = document.getElementById("firstTimer")
-
-                let isSecondHidden = true;
-
-                if (previousTimer && !previousTimer.classList.contains("hidden")) {
-                    previousTimer.classList.toggle("hidden")
-                }
-
-                //if there are less than 2 people in the lobby all of a sudden:
-                if (eventData.seconds === -1) {
-                    if (secondTimer && !secondTimer.classList.contains('hidden')) {
-                        secondTimer.classList.toggle('hidden');
-                    }
-                    break
-                }
-
-                if (secondTimer) {
-                    isSecondHidden = secondTimer.classList.contains('hidden');
-                }
-
-                if (isSecondHidden && secondTimer) {
-                    secondTimer.classList.toggle('hidden');
-                }
-
-                if (secondTimer) {
-                    secondTimer.innerText = "the game will start in " + String(timerseconds) + " seconds"
-                }
-
+                tenSecondTimer(eventData as TimerUpdates)
                 break
             case WsMessageTypes.StartGame:
                 sessionStorage.setItem("gameID", eventData.gameID)

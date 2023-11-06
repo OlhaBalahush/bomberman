@@ -26,11 +26,11 @@ type ConnectServerMessage = {
 }
 
 //user info who joined or left lobby needed as well?
-type EnterLobbyServerMessage = {
+export type EnterLobbyServerMessage = {
     playerCount: number,
 }
 
-type TimerUpdates = {
+export type TimerUpdates = {
     seconds: number,
 }
 
