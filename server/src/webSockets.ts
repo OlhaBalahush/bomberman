@@ -5,51 +5,42 @@ import { WsMessageTypes } from './constants'
 import { Lobby } from "./Lobby";
 import { Player } from "./Player";
 import { Game } from "./Game";
-import { WsClientMessage, WsServerMessage } from "./models/wsMessage"
+import { ChatClientMessage, wsEvent } from "./models/wsMessage";
 
 //storing all clients that are connected
-const clientsHashMap = new Map<string, WebSocket>();
+const clientsHashMap = new Map<string, Player>();
 //all active waitingrooms that have at least one player in it
 const lobbiesHashMap = new Map<string, Lobby>();
 const gamesHashMap = new Map<string, Game>();
 
+
 export function initWsServer(server: http.Server) {
     const wsServer = new WebSocket.Server({ server });
-
     wsServer.on("connection", (connection: WebSocket) => {
-        const clientID: string = handleWsClientConnect(connection);
+        // client establishes ws connection after entering username
+        const clientID: string = uuidv4();
+        const newPlayer = new Player(clientID, connection);
+        clientsHashMap.set(clientID, newPlayer);
+        addPlayerToLobby(newPlayer);
+        console.log(`WS: new client connected, id: ${clientID}`);
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
-        connection.on("close", () => handleClientDisconnect(clientID))
+        connection.on("close", () => {
+            handleClientDisconnect(clientID)
+        })
     })
 }
 
-function handleWsClientConnect(connection: WebSocket): string {
-    const clientID: string = uuidv4();
-    clientsHashMap.set(clientID, connection);
-
-    const payLoad: WsServerMessage = {
-        "type": WsMessageTypes.Connect,
-        "clientID": clientID
-    }
-
-    // sending back the client id which client needs to include in all of the future messages to be able to identify the connection later
-    connection.send(JSON.stringify(payLoad))
-
-    console.log(`WS: new client connected, id: ${clientID}`);
-    return clientID;
-}
-
-function handleClientMessages(message: string) {
+async function handleClientMessages(message: string) {
     const messageJSON = parseClientMessage(message);
     if (messageJSON) {
         switch (messageJSON.type) {
             //client sends enterLobby message after player enters username
-            case WsMessageTypes.EnterLobby: {
-                const newPlayer: Player = new Player(messageJSON.clientID, messageJSON.username);
-                //adding player to (new or alredy existing non-full) lobby
-                addPlayerToLobby(newPlayer);
+            case WsMessageTypes.ChatMessage: {
+                const message:ChatClientMessage = messageJSON.payload
+                const currentGame = gamesHashMap.get(message.gameID)
+                currentGame?.addMessage(message.content, message.sender)   
                 break;
             }
             default: {
@@ -59,9 +50,9 @@ function handleClientMessages(message: string) {
     }
 }
 
-function parseClientMessage(message: string): WsClientMessage | null {
+function parseClientMessage(message: string): wsEvent | null {
     try {
-        const messageJSON: WsClientMessage = JSON.parse(message);
+        const messageJSON: wsEvent = JSON.parse(message);
         console.log("WS message from client: " + message);
         return messageJSON;
     } catch (error) {
@@ -70,8 +61,9 @@ function parseClientMessage(message: string): WsClientMessage | null {
     }
 }
 
-function addPlayerToLobby(player: Player): void {
+export function addPlayerToLobby(player: Player): void {
     const lobbyToJoin = findEmptyLobby();
+    let tenSeconds = 10
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
         const lobbyID: string = uuidv4();
@@ -84,15 +76,15 @@ function addPlayerToLobby(player: Player): void {
         lobbyToJoin?.addPlayer(player);
         //notifying clients about change in the number of players in lobby
         lobbyToJoin?.broadcastPlayerCountChange();
-        //check if 2 players start count
+        // check if 2 players start count
         if (lobbyToJoin?.getCountOfPlayers() === 2) {
             lobbyToJoin.timer.start(
-                20,
+                2 * tenSeconds,
                 lobbyToJoin,
                 () => {
                     //start 10 second timer, if 20 sec finished but less than 4 players in lobby
                     lobbyToJoin.timer.stop();
-                    lobbyToJoin.timer.start(10, lobbyToJoin, startGame);
+                    lobbyToJoin.timer.start(tenSeconds, lobbyToJoin, startGame);
                 });
         }
 
@@ -101,7 +93,7 @@ function addPlayerToLobby(player: Player): void {
             if (lobbyToJoin.timer) {
                 lobbyToJoin.timer.stop();
             }
-            lobbyToJoin.timer.start(10, lobbyToJoin, startGame);
+            lobbyToJoin.timer.start(tenSeconds, lobbyToJoin, startGame);
         }
     }
 }
@@ -132,18 +124,22 @@ function findEmptyLobby(): Lobby | null {
     return null;
 }
 
-export function broadcastMessage(message: WsServerMessage, players: Player[]) {
+export async function broadcastMessage(message: wsEvent, players: Player[]) {
     for (const player of players) {
         try {
-            const client = clientsHashMap.get(player.id);
-            if (client) {
-                client.send(JSON.stringify(message));
-            } else {
-                console.error(`Client not found for player with id ${player.id}`);
-            }
+            WriteMessage(message, player)
         } catch (error) {
             console.error(`An error occurred while sending message to player with id ${player.id}:`, error);
         }
+    }
+}
+
+async function WriteMessage(message:wsEvent, player:Player){
+    const client = clientsHashMap.get(player.id);
+    if (client) {
+        player.conn.send(JSON.stringify(message));
+    } else {
+        console.error(`Client not found for player with id ${player.id}`);
     }
 }
 

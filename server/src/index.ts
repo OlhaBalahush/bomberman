@@ -5,9 +5,8 @@ import { initWsServer } from './webSockets'
 const PORT = 8080;
 
 const app = express();
-const HTTPserver = http.createServer(app);
 
-HTTPserver.listen(PORT, () => {
+const HTTPserver = app.listen(PORT, () => {
     console.log('Server is listening on port 8080');
 });
 

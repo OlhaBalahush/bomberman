@@ -1,4 +1,6 @@
 import { createDOMElement, useStateManager } from "mini-framework";
+import { connectWS } from "../websocket";
+import { navigateTo } from "../main";
 
 export let TimerCountDown = useStateManager("0")
 
@@ -6,16 +8,13 @@ export let TimerCountDown = useStateManager("0")
 export const lobbyView = () => {
 
     let playerCountInLobby = useStateManager("1")
+    
+    connectWS()
 
-    //TODO: change this to the correct port and and endpoint
-    fetch('https://localhost:8080/GetLobbyCount')
-        .then(response => response.json)
-        .then(data => {
-            console.log(data);
-            //TODO save the gotten number to the playercountInLobby variable
-
-        })
-        .catch(err => console.log(err));
+    if(!sessionStorage.getItem("username")){
+        navigateTo("/")
+        return
+    }
 
     const HTML = createDOMElement("div", {
         class: "min-h-screen flex items-center justify-center bg-neutral-600"

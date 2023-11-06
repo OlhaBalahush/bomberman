@@ -1,14 +1,14 @@
 
 import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
-import { WsServerMessage } from "./models/wsMessage"
-import { Message, WsMessageTypes } from './constants'
+import { ChatMessage, WsMessageTypes } from './constants'
+import { wsEvent } from "./models/wsMessage";
 
 //TODO:
 export class Game {
     private _id: string;
     private _players: Player[];
-    private _chat: Message[];
+    private _chat: ChatMessage[];
     //Chat object here?
     //TODO: game status tracker, either separate object or directly here
 
@@ -28,14 +28,23 @@ export class Game {
     }
 
     addMessage(msg:string, username:string){
-        let newMessage = new Message(msg, username)
+        let newMessage = new ChatMessage(msg, username)
         this._chat.push(newMessage)
+        const chatMessage: wsEvent = {
+            type: WsMessageTypes.dispatchChatMessage,
+            payload: newMessage 
+        }
+        broadcastMessage(chatMessage, this._players)
+
     }
 
     broadcastGameStart(): void {
-        const messagePayLoad: WsServerMessage = {
+        const messagePayLoad: wsEvent = {
             //TODO: add more data, like map, initial position of players, maybe game id? maybe more info
             "type": WsMessageTypes.StartGame,
+            "payload": {
+                gameID: this._id
+            }
         }
         broadcastMessage(messagePayLoad, this._players)
     }

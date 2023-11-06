@@ -1,19 +1,21 @@
+import WebSocket from "ws";
+
 //TODO
 export class Player {
     private _id: string;
-    private _username: string;
+    private _username?: string ;
+    conn: WebSocket;
 
-    constructor(id: string, username: string) {
+    constructor(id: string, conn:WebSocket) {
         this._id = id;
-        this._username = username;
-        console.log("new player created");
+        this.conn = conn;
     }
 
     get id(): string {
         return this._id;
     }
 
-    get username(): string {
+    get username(): string | undefined {
         return this._username;
     }
 
@@ -21,6 +23,7 @@ export class Player {
         return {
             id: this._id,
             username: this._username,
+            conn: this.conn,
         }
     }
 }

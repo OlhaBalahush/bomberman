@@ -1,8 +1,8 @@
 import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
-import { WsServerMessage } from "./models/wsMessage"
 import { WsMessageTypes } from './constants'
 import { LobbyTimer } from "./LobbyTimer";
+import { wsEvent } from "./models/wsMessage";
 
 export class Lobby {
     private _id: string;
@@ -37,17 +37,21 @@ export class Lobby {
     }
 
     broadcastPlayerCountChange(): void {
-        const messagePayLoad: WsServerMessage = {
+        const messagePayLoad: wsEvent = {
             "type": WsMessageTypes.EnterLobby,
-            "playerCount": this.getCountOfPlayers(),
+            "payload":{
+                "playerCount": this.getCountOfPlayers(),
+            }
         }
         broadcastMessage(messagePayLoad, this._players)
     }
 
     broadcastTimerChange(remainingTime: number, timerType: number): void {
-        const messagePayLoad: WsServerMessage = {
+        const messagePayLoad: wsEvent = {
             "type": timerType === 20 ? WsMessageTypes.TwentySecondTimer : WsMessageTypes.TenSecondTimer,
-            "seconds": remainingTime,
+            "payload":{
+                "seconds": remainingTime,
+            }
         }
         broadcastMessage(messagePayLoad, this.players)
     }

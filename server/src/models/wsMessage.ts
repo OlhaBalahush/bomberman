@@ -1,43 +1,39 @@
-import { WsMessageTypes } from '../constants'
+import { ChatMessage, WsMessageTypes } from '../constants'
 
-export type WsClientMessage =
-    | EnterLobbyClientMessage
-    | ChatClientMessage;
+export class wsEvent  {
+    type:WsMessageTypes
+    payload:any
 
-export type WsServerMessage =
-    | ConnectServerMessage
-    | TimerUpdates
-    | EnterLobbyServerMessage
-    | StartGameMessage;
+    constructor(type:WsMessageTypes, payload:any){
+        this.type = type
+        this.payload = payload
+    }
+}
 
 type EnterLobbyClientMessage = {
-    type: WsMessageTypes.EnterLobby,
     clientID: string,
     username: string,
-};
+}
 
-type ChatClientMessage = {
-    type: WsMessageTypes.ChatMessage;
-    clientID: string,
-    content: string;
+export type ChatClientMessage = {
+    gameID: string,
+    content: string,
+    sender:  string,
 };
 
 type ConnectServerMessage = {
-    type: WsMessageTypes.Connect,
     clientID: string
 }
 
 //user info who joined or left lobby needed as well?
 type EnterLobbyServerMessage = {
-    type: WsMessageTypes.EnterLobby,
     playerCount: number,
 }
 
 type TimerUpdates = {
-    type: WsMessageTypes.TwentySecondTimer | WsMessageTypes.TenSecondTimer,
     seconds: number,
 }
 
 type StartGameMessage = {
-    type: WsMessageTypes.StartGame,
+    gameID: string
 }

@@ -1,7 +1,8 @@
 import { createDOMElement, useStateManager } from "mini-framework";
+import { connectWS, sendEvent } from "../websocket";
+import { navigateTo } from "../main";
 
 export const usernameView = () => {
-
     const username = useStateManager("")
 
     const handleChange = (e) => {
@@ -12,7 +13,7 @@ export const usernameView = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         sessionStorage.setItem("username", username.getState())
-        window.location.href = "/waiting-room"
+        navigateTo("/waiting-room")
     }
 
     const startPage = createDOMElement("div", {
