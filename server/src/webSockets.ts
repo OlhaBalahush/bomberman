@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 import http from 'http';
-import { WsMessageTypes } from './constants'
+import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Player } from "./Player";
 import { Game } from "./Game";

@@ -1,12 +1,13 @@
 import { createDOMElement, useStateManager } from "mini-framework";
 import { sendEvent } from "../websocket";
 import { navigateTo } from "../main";
-import { Message } from "../models/chat";
+import { ChatMessage } from "../models/wsMessage";
+import { WsMessageTypes } from "../models/constants";
 
 export const gameView = () => {
     let gameTime = useStateManager("240") //TODO connect with be
     let PlayerHealth = useStateManager("3")//TODO connect with be
-    let chatHistory:Message[] = []
+    let chatHistory:ChatMessage[] = []
 
     if(!sessionStorage.getItem("gameID")){
         navigateTo("/")
@@ -24,7 +25,7 @@ export const gameView = () => {
         if (e.key === "Enter") {
             //send message to BE
             console.log("trying to send message: ", e.target.value)
-            sendEvent("chatMessage", { sender: sessionStorage.getItem("username"), content: e.target.value, gameID: sessionStorage.getItem("gameID") } )
+            sendEvent(WsMessageTypes.ChatMessage, { sender: sessionStorage.getItem("username"), content: e.target.value, gameID: sessionStorage.getItem("gameID") } )
             e.target.value = ""
         }
     }

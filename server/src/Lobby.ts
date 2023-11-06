@@ -1,6 +1,6 @@
 import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
-import { WsMessageTypes } from './constants'
+import { WsMessageTypes } from './models/constants'
 import { LobbyTimer } from "./LobbyTimer";
 import { wsEvent } from "./models/wsMessage";
 

@@ -1,6 +1,5 @@
 import { navigateTo } from "./main";
-import { TimerCountDown } from "./views/lobbyView";
-
+import { WsMessageTypes } from "./models/constants";
 
 export let socket:WebSocket
 
@@ -26,7 +25,16 @@ export const connectWS= () => {
         console.log('WebSocket message received:', data);
         const eventData = data.payload
         switch (data.type) {
-            case "startTwentySecondTimer":
+            case WsMessageTypes.EnterLobby:
+                const playerCountContainer = document.getElementById("playerCount")
+                const playerCount = eventData.playerCount
+
+                if (playerCountContainer) {
+                    playerCountContainer.innerText = playerCount + " user(s) in the lobby right now"
+                }
+
+                break;
+            case WsMessageTypes.TwentySecondTimer:
                 const timerSeconds = eventData.seconds
                 const fristTimerText = document.getElementById("firstTimer")
                 let isHidden = true;
@@ -44,7 +52,7 @@ export const connectWS= () => {
                 }
 
                 break
-            case "startTenSecondTimer":
+            case WsMessageTypes.TenSecondTimer:
                 const timerseconds = eventData.seconds
 
                 const secondTimer = document.getElementById("secondTimer")
@@ -78,11 +86,11 @@ export const connectWS= () => {
                 }
 
                 break
-            case "startGame":
+            case WsMessageTypes.StartGame:
                 sessionStorage.setItem("gameID", eventData.gameID)
                 navigateTo("/game")
                 break
-            case "dispatchChatMessage":
+            case WsMessageTypes.ChatMessage:
                 const message = new CustomEvent("newMessage", {detail:eventData})
                 document.dispatchEvent(message)
                 break

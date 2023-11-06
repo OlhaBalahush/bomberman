@@ -1,8 +1,8 @@
 
 import { Player } from "./Player";
 import { broadcastMessage } from "./webSockets";
-import { ChatMessage, WsMessageTypes } from './constants'
-import { wsEvent } from "./models/wsMessage";
+import {  WsMessageTypes } from './models/constants'
+import { ChatMessage, wsEvent } from "./models/wsMessage";
 
 //TODO:
 export class Game {
@@ -28,10 +28,10 @@ export class Game {
     }
 
     addMessage(msg:string, username:string){
-        let newMessage = new ChatMessage(msg, username)
+        let newMessage:ChatMessage= {message: msg, sender:username, timestamp: new Date }
         this._chat.push(newMessage)
         const chatMessage: wsEvent = {
-            type: WsMessageTypes.dispatchChatMessage,
+            type: WsMessageTypes.ChatMessage,
             payload: newMessage 
         }
         broadcastMessage(chatMessage, this._players)
