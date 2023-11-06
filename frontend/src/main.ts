@@ -20,7 +20,9 @@ export const navigateTo = (pathname:string)=>{
         child = e.lastElementChild; 
     } 
     window.history.pushState({}, pathname, window.location.origin + pathname);
-    document.body.appendChild(Routes[pathname]().element)
+    const view = Routes[pathname]()
+
+    if(view) document.body.appendChild(view.element)
 }
 
 const currentURL = document.location.pathname

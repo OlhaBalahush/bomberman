@@ -9,13 +9,13 @@ export let TimerCountDown = useStateManager("0")
 export const lobbyView = () => {
 
     let playerCountInLobby = useStateManager("1")
-    
-    connectWS()
 
     if(!sessionStorage.getItem("username")){
         navigateTo("/")
         return
     }
+    
+    connectWS()
 
     const HTML = createDOMElement("div", {
         class: "min-h-screen flex items-center justify-center bg-neutral-600"
