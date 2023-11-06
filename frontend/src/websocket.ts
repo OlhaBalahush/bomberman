@@ -27,39 +27,56 @@ export const connectWS= () => {
         const eventData = data.payload
         switch (data.type) {
             case "startTwentySecondTimer":
-                TimerCountDown.setState(event.data)
-
+                const timerSeconds = eventData.seconds
                 const fristTimerText = document.getElementById("firstTimer")
-
                 let isHidden = true;
 
                 if (fristTimerText) {
                     isHidden = fristTimerText.classList.contains('hidden');
                 }
+
                 if (isHidden && fristTimerText) {
                     fristTimerText.classList.toggle('hidden');
                 }
-                if (!isHidden && event.data === "0" && fristTimerText) {
-                    fristTimerText.classList.toggle('hidden');
+
+                if (fristTimerText) {
+                    fristTimerText.innerText = "the countdown will begin in " + String(timerSeconds) + " seconds"
                 }
-                //TODO add logic here to show the countdown from 20 with message:
-                // "20 seconds untill the countdown"
+
                 break
             case "startTenSecondTimer":
-                TimerCountDown.setState(event.data)
+                const timerseconds = eventData.seconds
 
                 const secondTimer = document.getElementById("secondTimer")
 
+                const previousTimer = document.getElementById("firstTimer")
+
                 let isSecondHidden = true;
+
+                if (previousTimer && !previousTimer.classList.contains("hidden")) {
+                    previousTimer.classList.toggle("hidden")
+                }
+
+                //if there are less than 2 people in the lobby all of a sudden:
+                if (eventData.seconds === -1) {
+                    if (secondTimer && !secondTimer.classList.contains('hidden')) {
+                        secondTimer.classList.toggle('hidden');
+                    }
+                    break
+                }
 
                 if (secondTimer) {
                     isSecondHidden = secondTimer.classList.contains('hidden');
                 }
+
                 if (isSecondHidden && secondTimer) {
                     secondTimer.classList.toggle('hidden');
                 }
-                //TODO add logic here to show the countdown from 10 seconds with the message:
-                // "ten seconds untill game will start..."
+
+                if (secondTimer) {
+                    secondTimer.innerText = "the game will start in " + String(timerseconds) + " seconds"
+                }
+
                 break
             case "startGame":
                 sessionStorage.setItem("gameID", eventData.gameID)
