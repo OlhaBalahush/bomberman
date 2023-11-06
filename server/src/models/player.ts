@@ -1,4 +1,4 @@
-class Player {
+export class Player {
     private _token: string
     private _username: string
     private _lives: number
@@ -9,7 +9,8 @@ class Player {
     }
     private _position: { x: number, y: number }
 
-    constructor(username: string) {
+    constructor(id: string, username: string) {
+        this._token = id
         this._username = username
         this._lives = 3
         this._powerups = {
@@ -19,11 +20,6 @@ class Player {
         }
         // TODO adjust to have different position for different players
         this._position = { x: 0, y: 0 }
-    }
-
-    // made token, not sure if needed
-    set token(token: string) {
-        this._token = token
     }
 
     get username(): string {

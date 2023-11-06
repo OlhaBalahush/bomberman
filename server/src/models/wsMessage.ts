@@ -1,4 +1,5 @@
-import {  WsMessageTypes } from './constants'
+import { WsMessageTypes } from '../constants'
+import { gameMap } from '../map';
 
 export class wsEvent  {
     type:WsMessageTypes

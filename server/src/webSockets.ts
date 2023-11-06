@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
-import { Player } from "./Player";
 import { Game } from "./Game";
 import { ChatClientMessage, wsEvent } from "./models/wsMessage";
 
@@ -104,7 +103,7 @@ function startGame(lobby: Lobby): void {
     gamesHashMap.set(gameID, newGame)
 
     for (const player of lobby.players) {
-        newGame.addPlayer(player);
+        newGame.addPlayer(player.id, player.username);
     }
 
     newGame.broadcastGameStart();

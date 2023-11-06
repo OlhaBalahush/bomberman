@@ -7,7 +7,10 @@
 //     5: "booked" // for development purposes
 // }
 
-class gameMap {
+import { Player } from "./models/player";
+
+
+export class gameMap {
     mapWidth: number = 15;
     mapHeight: number = 13;
     gameMap: number[][] = [...Array(this.mapHeight)].map(() => [...Array(this.mapWidth)].fill(0));
@@ -18,11 +21,12 @@ class gameMap {
         [13, 11], [12, 11], [13, 10],
     ];
 
-    constructor() {
+    constructor(players: Player[]) {
         this.initMap();
         this.bookCorners();
         this.placeIndestructibleBlocks(50);
         this.freeCorners();
+        this.placePlayers(players);
     }
 
     private initMap() {
@@ -63,6 +67,18 @@ class gameMap {
     private freeCorners() {
         for (const [x, y] of this.corners) {
             this.gameMap[y][x] = 0;
+        }
+    }
+
+    private placePlayers(players: Player[]) {
+        const cornerCoordinates = [
+            [1, 1], [13, 1], [1, 11], [13, 11]
+        ];
+    
+        for (let i = 0; i < players.length; i++) {
+            const [x, y] = cornerCoordinates[i];
+            // const player = players[i];
+            this.gameMap[y][x] = 3;
         }
     }
 }
