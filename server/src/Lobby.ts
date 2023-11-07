@@ -1,12 +1,12 @@
-import { wsPlayer } from "./Player";
 import { broadcastMessage } from "./webSockets";
 import { WsMessageTypes } from './models/constants'
 import { LobbyTimer } from "./LobbyTimer";
 import { wsEvent } from "./models/wsMessage";
+import { gamePlayer } from "./models/player";
 
 export class Lobby {
     private _id: string;
-    private _players: wsPlayer[];
+    private _players: gamePlayer[];
     private _timer: LobbyTimer;
 
     constructor(id: string) {
@@ -16,7 +16,7 @@ export class Lobby {
         console.log("new lobby created");
     }
 
-    addPlayer(player: wsPlayer): void {
+    addPlayer(player: gamePlayer): void {
         if (this.getCountOfPlayers() < 4) {
             this._players.push(player);
         } else {
@@ -60,7 +60,7 @@ export class Lobby {
         return this._id;
     }
 
-    get players(): wsPlayer[] {
+    get players(): gamePlayer[] {
         return this._players;
     }
 

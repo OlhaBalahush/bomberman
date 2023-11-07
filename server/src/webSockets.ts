@@ -5,11 +5,10 @@ import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
 import { ChatClientMessage, wsEvent } from "./models/wsMessage";
-import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 
 //storing all clients that are connected
-const clientsHashMap = new Map<string, wsPlayer>();
+const clientsHashMap = new Map<string, gamePlayer>();
 //all active waitingrooms that have at least one player in it
 const lobbiesHashMap = new Map<string, Lobby>();
 const gamesHashMap = new Map<string, Game>();
@@ -20,7 +19,7 @@ export function initWsServer(server: http.Server) {
     wsServer.on("connection", (connection: WebSocket) => {
         // client establishes ws connection after entering username
         const clientID: string = uuidv4();
-        const newPlayer = new wsPlayer(clientID, connection);
+        const newPlayer = new gamePlayer(clientID, connection);
         clientsHashMap.set(clientID, newPlayer);
         addPlayerToLobby(newPlayer);
         console.log(`WS: new client connected, id: ${clientID}`);
@@ -62,7 +61,7 @@ function parseClientMessage(message: string): wsEvent | null {
     }
 }
 
-export function addPlayerToLobby(player: wsPlayer): void {
+export function addPlayerToLobby(player: gamePlayer): void {
     const lobbyToJoin = findEmptyLobby();
     let tenSeconds = 10
     //create new lobby if there are none available
@@ -109,7 +108,7 @@ function startGame(lobby: Lobby): void {
     gamesHashMap.set(gameID, newGame)
 
     for (const player of lobby.players) {
-        newGame.addPlayer(player.id, player.username ? player.username : "");
+        newGame.addPlayer(player.id, player.conn);
     }
 
     newGame.broadcastGameStart();
@@ -129,7 +128,7 @@ function findEmptyLobby(): Lobby | null {
     return null;
 }
 
-export async function broadcastMessage(message: wsEvent, players: wsPlayer[]) {
+export async function broadcastMessage(message: wsEvent, players: gamePlayer[]) {
     for (const player of players) {
         try {
             WriteMessage(message, player)
@@ -154,7 +153,7 @@ export async function broadcastMessageToGamePlayers(message: wsEvent, players: g
     }
 }
 
-async function WriteMessage(message: wsEvent, player: wsPlayer) {
+async function WriteMessage(message: wsEvent, player: gamePlayer) {
     const client = clientsHashMap.get(player.id);
     if (client) {
         client.conn.send(JSON.stringify(message));

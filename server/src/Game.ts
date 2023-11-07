@@ -4,6 +4,7 @@ import { WsMessageTypes } from './models/constants'
 import { ChatMessage, wsEvent } from "./models/wsMessage";
 import { gamePlayer } from "./models/player";
 import { gameMap } from "./map";
+import WebSocket from "ws";
 
 //TODO:
 export class Game {
@@ -22,8 +23,8 @@ export class Game {
         console.log("new game created");
     }
 
-    addPlayer(id: string, username: string): void {
-        let player = new gamePlayer(id, username)
+    addPlayer(id: string, conn: WebSocket): void {
+        let player = new gamePlayer(id, conn)
         this._players.push(player);
     }
 

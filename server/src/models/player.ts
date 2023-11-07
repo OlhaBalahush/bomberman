@@ -1,17 +1,19 @@
+import WebSocket from "ws";
+
 export class gamePlayer {
     private _id: string
-    private _username: string
+    private _username?: string
     private _lives: number
     private _powerups: {
         maxBombCount: number
         explosionRange: number
         speed: number
     }
+    conn: WebSocket
     private _position: { x: number, y: number }
 
-    constructor(id: string, username: string) {
+    constructor(id: string, conn:WebSocket) {
         this._id = id
-        this._username = username
         this._lives = 3
         this._powerups = {
             maxBombCount: 1,
@@ -20,6 +22,7 @@ export class gamePlayer {
         }
         // TODO adjust to have different position for different players
         this._position = { x: 0, y: 0 }
+        this.conn = conn
     }
 
     get id(): string {
@@ -27,7 +30,7 @@ export class gamePlayer {
     }
 
     get username(): string {
-        return this._username
+        return this._username ? this._username : ""
     }
 
     get lives(): number {
