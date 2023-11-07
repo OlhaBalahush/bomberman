@@ -24,12 +24,11 @@ export class gameMap {
         [13, 11], [12, 11], [13, 10],
     ];
 
-    constructor(players: Player[]) {
+    constructor() {
         this.initMap();
         this.bookCorners();
         this.placeIndestructibleBlocks(50);
         this.freeCorners();
-        this.placePlayers(players);
     }
 
     private initMap() {
