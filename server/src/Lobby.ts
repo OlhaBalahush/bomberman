@@ -3,25 +3,34 @@ import { WsMessageTypes } from './models/constants'
 import { LobbyTimer } from "./LobbyTimer";
 import { wsEvent } from "./models/wsMessage";
 import { gamePlayer } from "./models/player";
+import { v4 as uuidv4 } from "uuid";
 
 export class Lobby {
     private _id: string;
     private _players: gamePlayer[];
     private _timer: LobbyTimer;
 
-    constructor(id: string) {
-        this._id = id;
+    constructor() {
+        this._id = uuidv4();
         this._players = [];
         this._timer = new LobbyTimer();
         console.log("new lobby created");
     }
 
     addPlayer(player: gamePlayer): void {
+        const success:wsEvent = {
+            type:WsMessageTypes.LobbyJoinSuccess,
+            payload:{
+                clientID: player.id
+            }
+        }
         if (this.getCountOfPlayers() < 4) {
             this._players.push(player);
+            broadcastMessage(success, [player])
         } else {
             console.log("Lobby with id " + this._id + " has already " + this.getCountOfPlayers + " players.")
         }
+        
     }
 
     getCountOfPlayers = (): number => this._players.length;

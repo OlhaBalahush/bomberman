@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import { v4 as uuidv4 } from "uuid";
 
 export class gamePlayer {
     private _id: string
@@ -12,8 +13,8 @@ export class gamePlayer {
     conn: WebSocket
     private _position: { x: number, y: number }
 
-    constructor(id: string, conn:WebSocket) {
-        this._id = id
+    constructor(conn:WebSocket) {
+        this._id = uuidv4()
         this._lives = 3
         this._powerups = {
             maxBombCount: 1,

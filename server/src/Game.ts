@@ -5,6 +5,8 @@ import { ChatMessage, wsEvent } from "./models/wsMessage";
 import { gamePlayer } from "./models/player";
 import { gameMap } from "./map";
 import WebSocket from "ws";
+import { v4 as uuidv4 } from "uuid";
+
 
 //TODO:
 export class Game {
@@ -12,19 +14,18 @@ export class Game {
     private _players: gamePlayer[];
     private _chat: ChatMessage[];
     private _map: gameMap;
-    //Chat object here?
-    //TODO: game status tracker, either separate object or directly here
+    // Chat object here?
+    // TODO: game status tracker, either separate object or directly here
 
-    constructor(id: string) {
-        this._id = id;
+    constructor() {
+        this._id = uuidv4();
         this._players = [];
         this._chat = [];
         this._map = new gameMap();
         console.log("new game created");
     }
 
-    addPlayer(id: string, conn: WebSocket): void {
-        let player = new gamePlayer(id, conn)
+    addPlayer(player:gamePlayer): void {
         this._players.push(player);
     }
 

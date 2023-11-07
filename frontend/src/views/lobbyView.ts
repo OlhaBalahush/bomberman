@@ -15,8 +15,6 @@ export const lobbyView = () => {
         return
     }
     
-    connectWS()
-
     const HTML = createDOMElement("div", {
         class: "min-h-screen flex items-center justify-center bg-neutral-600"
     }, [createDOMElement("div", { class: "flex-column  bg-neutral-200  p-12 w-[600px] shadow-md border-4 border-black text-center" }, [

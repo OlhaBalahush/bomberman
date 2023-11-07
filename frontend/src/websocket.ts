@@ -27,6 +27,10 @@ export const connectWS= () => {
         console.log('WebSocket message received:', data);
         const eventData = data.payload
         switch (data.type) {
+            case WsMessageTypes.LobbyJoinSuccess:
+                sessionStorage.setItem("clientID", eventData.clientID)
+                navigateTo("/waiting-room")
+                break
             case WsMessageTypes.EnterLobby:
                 addPlayerCount(eventData as EnterLobbyServerMessage)
                 break;

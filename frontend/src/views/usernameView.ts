@@ -13,7 +13,7 @@ export const usernameView = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         sessionStorage.setItem("username", username.getState())
-        navigateTo("/waiting-room")
+        connectWS()
     }
 
     const startPage = createDOMElement("div", {
