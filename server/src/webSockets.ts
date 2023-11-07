@@ -214,7 +214,8 @@ function startGame(lobby: Lobby): void {
     for (const player of lobby.players) {
         newGame.addPlayer(player.id, player.username ? player.username : "");
     }
-    lobbiesHashMap.delete(lobby.id)
+
+    lobbiesHashMap.delete(lobby.id);
     newGame.broadcastGameStart();
 }
 
