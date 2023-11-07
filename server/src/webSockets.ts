@@ -5,9 +5,11 @@ import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
 import { ChatClientMessage, wsEvent } from "./models/wsMessage";
+import { wsPlayer } from "./Player";
+import { gamePlayer } from "./models/player";
 
 //storing all clients that are connected
-const clientsHashMap = new Map<string, Player>();
+const clientsHashMap = new Map<string, wsPlayer>();
 //all active waitingrooms that have at least one player in it
 const lobbiesHashMap = new Map<string, Lobby>();
 const gamesHashMap = new Map<string, Game>();
@@ -18,7 +20,7 @@ export function initWsServer(server: http.Server) {
     wsServer.on("connection", (connection: WebSocket) => {
         // client establishes ws connection after entering username
         const clientID: string = uuidv4();
-        const newPlayer = new Player(clientID, connection);
+        const newPlayer = new wsPlayer(clientID, connection);
         clientsHashMap.set(clientID, newPlayer);
         addPlayerToLobby(newPlayer);
         console.log(`WS: new client connected, id: ${clientID}`);
@@ -37,9 +39,9 @@ async function handleClientMessages(message: string) {
         switch (messageJSON.type) {
             //client sends enterLobby message after player enters username
             case WsMessageTypes.ChatMessage: {
-                const message:ChatClientMessage = messageJSON.payload
+                const message: ChatClientMessage = messageJSON.payload
                 const currentGame = gamesHashMap.get(message.gameID)
-                currentGame?.addMessage(message.content, message.sender)   
+                currentGame?.addMessage(message.content, message.sender)
                 break;
             }
             default: {
@@ -60,7 +62,7 @@ function parseClientMessage(message: string): wsEvent | null {
     }
 }
 
-export function addPlayerToLobby(player: Player): void {
+export function addPlayerToLobby(player: wsPlayer): void {
     const lobbyToJoin = findEmptyLobby();
     let tenSeconds = 10
     //create new lobby if there are none available
@@ -78,12 +80,16 @@ export function addPlayerToLobby(player: Player): void {
         // check if 2 players start count
         if (lobbyToJoin?.getCountOfPlayers() === 2) {
             lobbyToJoin.timer.start(
-                2 * tenSeconds,
+                // TODO change back to 20s 
+                5, // 2 * tenSeconds,
                 lobbyToJoin,
                 () => {
                     //start 10 second timer, if 20 sec finished but less than 4 players in lobby
                     lobbyToJoin.timer.stop();
-                    lobbyToJoin.timer.start(tenSeconds, lobbyToJoin, startGame);
+                    lobbyToJoin.timer.start(3, //tenSeconds, 
+                        lobbyToJoin,
+                        startGame
+                    );
                 });
         }
 
@@ -103,7 +109,7 @@ function startGame(lobby: Lobby): void {
     gamesHashMap.set(gameID, newGame)
 
     for (const player of lobby.players) {
-        newGame.addPlayer(player.id, player.username);
+        newGame.addPlayer(player.id, player.username ? player.username : "");
     }
 
     newGame.broadcastGameStart();
@@ -123,7 +129,7 @@ function findEmptyLobby(): Lobby | null {
     return null;
 }
 
-export async function broadcastMessage(message: wsEvent, players: Player[]) {
+export async function broadcastMessage(message: wsEvent, players: wsPlayer[]) {
     for (const player of players) {
         try {
             WriteMessage(message, player)
@@ -133,10 +139,25 @@ export async function broadcastMessage(message: wsEvent, players: Player[]) {
     }
 }
 
-async function WriteMessage(message:wsEvent, player:Player){
+export async function broadcastMessageToGamePlayers(message: wsEvent, players: gamePlayer[]) {
+    for (const player of players) {
+        const c = clientsHashMap.get(player.id)
+        try {
+            if (c) {
+                WriteMessage(message, c)
+            } else {
+                throw new Error;
+            }
+        } catch (error) {
+            console.error(`An error occurred while sending message to player with id ${player.id}:`, error);
+        }
+    }
+}
+
+async function WriteMessage(message: wsEvent, player: wsPlayer) {
     const client = clientsHashMap.get(player.id);
     if (client) {
-        player.conn.send(JSON.stringify(message));
+        client.conn.send(JSON.stringify(message));
     } else {
         console.error(`Client not found for player with id ${player.id}`);
     }

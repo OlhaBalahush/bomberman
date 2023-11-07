@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 
 //TODO
-export class Player {
+export class wsPlayer {
     private _id: string;
     private _username?: string ;
     conn: WebSocket;

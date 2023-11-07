@@ -2,12 +2,15 @@
 //     0: "free",
 //     1: "indestructible",
 //     2: "destructible",
-//     3: "player",
-//     4: "bomb",
-//     5: "booked" // for development purposes
+//     3: "player1",
+//     4: "player2",
+//     5: "player3",
+//     6: "player4",
+//     7: "bomb",
+//     8: "booked" // for development purposes
 // }
 
-import { Player } from "./models/player";
+import { gamePlayer } from "./models/player";
 
 
 export class gameMap {
@@ -21,12 +24,11 @@ export class gameMap {
         [13, 11], [12, 11], [13, 10],
     ];
 
-    constructor(players: Player[]) {
+    constructor() {
         this.initMap();
         this.bookCorners();
         this.placeIndestructibleBlocks(50);
         this.freeCorners();
-        this.placePlayers(players);
     }
 
     private initMap() {
@@ -46,7 +48,7 @@ export class gameMap {
 
     private bookCorners() {
         for (const [x, y] of this.corners) {
-            this.gameMap[y][x] = 5;
+            this.gameMap[y][x] = 8;
         }
     }
 
@@ -70,15 +72,20 @@ export class gameMap {
         }
     }
 
-    private placePlayers(players: Player[]) {
+    placePlayers(players: gamePlayer[]) {
         const cornerCoordinates = [
-            [1, 1], [13, 1], [1, 11], [13, 11]
+            [1, 1],
+            [13, 11],
+            [1, 11],
+            [13, 1],
         ];
-    
+        let player = 3;
+
         for (let i = 0; i < players.length; i++) {
             const [x, y] = cornerCoordinates[i];
-            // const player = players[i];
-            this.gameMap[y][x] = 3;
+            this.gameMap[y][x] = player;
+            players[i].setPosition(x, y)
+            player++
         }
     }
 }
