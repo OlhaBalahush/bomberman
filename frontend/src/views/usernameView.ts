@@ -1,5 +1,4 @@
 import { createDOMElement, useStateManager } from "mini-framework";
-import { connectWS, sendEvent } from "../websocket";
 import { navigateTo } from "../main";
 
 export const usernameView = () => {

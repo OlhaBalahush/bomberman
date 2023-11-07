@@ -28,6 +28,11 @@ export type GameClientIinput = {
     key: string,
 }
 
+export type MovePlayer = {
+    userId: string,
+    cordinates: { x: number, y: number }
+}
+
 type ConnectServerMessage = {
     clientID: string
 }

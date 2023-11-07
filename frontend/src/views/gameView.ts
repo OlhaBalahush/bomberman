@@ -1,7 +1,7 @@
 import { createDOMElement, useStateManager } from "mini-framework";
 import { sendEvent } from "../websocket";
 import { navigateTo } from "../main";
-import { ChatMessage } from "../models/wsMessage";
+import { ChatMessage, MovePlayer, GameClientIinput } from "../models/wsMessage";
 import { WsMessageTypes } from "../models/constants";
 import { renderMap } from "../map";
 
@@ -48,6 +48,41 @@ export const gameView = () => {
     }) as EventListener)
 
     const map = renderMap(flatmap)
+
+    function MovePlayer(data: MovePlayer) {
+        console.log("data received to move player: " + data)
+    }
+
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') {
+            // send left movement
+
+        } else if (event.key === 'ArrowRight') {
+            // send right movement
+        } else if (event.key === 'ArrowUp') {
+            // send up movement
+        } else if (event.key === 'ArrowDown') {
+            // send down movement
+        }
+
+        const gameId = sessionStorage.getItem("gameID")
+        if (!gameId) {
+            console.log("no game ID available")
+            return
+        }
+
+        const playerID = sessionStorage.getItem("playerID")
+
+
+        // const payload: GameClientIinput = {
+        //     gameID: gameId,
+
+        // }
+        // sendEvent(WsMessageTypes.GameInput, payload)
+    });
+
+
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
         createDOMElement("div", { class: "border-1 border-black flex flex-col", id: "gameBox" }, [

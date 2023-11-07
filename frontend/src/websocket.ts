@@ -1,11 +1,11 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
-import { EnterLobbyServerMessage, TimerUpdates } from "./models/wsMessage";
-import { addPlayerCount, tenSecondTimer, twentySecondTimer } from "./views/lobbyView";
+import { EnterLobbyServerMessage, TimerUpdates, MovePlayer } from "./models/wsMessage";
+import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
 
-export let socket:WebSocket
+export let socket: WebSocket
 
-export const connectWS= () => {
+export const connectWS = () => {
     socket = new WebSocket("ws://localhost:8080/ws")
 
     socket.onopen = (event) => {
@@ -15,7 +15,7 @@ export const connectWS= () => {
         const PlayersUsername = sessionStorage.getItem('username');
 
         if (PlayersUsername) {
-            sendEvent("",{Username:PlayersUsername})
+            sendEvent("", { Username: PlayersUsername })
         } else {
             sendEvent("", { error: "error getting players username" })
         }
@@ -42,8 +42,12 @@ export const connectWS= () => {
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:
-                const message = new CustomEvent("newMessage", {detail:eventData})
+                const message = new CustomEvent("newMessage", { detail: eventData })
                 document.dispatchEvent(message)
+                break
+            case WsMessageTypes.MovePlayer:
+                const newCords = eventData as MovePlayer
+
                 break
             default:
                 console.log("error unknow ws connection message type: ", event.type)
@@ -60,10 +64,10 @@ export const connectWS= () => {
 
     socket.addEventListener('error', (event) => {
         console.error('WebSocket error:', event);
-});
+    });
 
 }
 
-export const sendEvent = (type:string, payload:any) => {
-    socket.send(JSON.stringify({type,payload}) )
+export const sendEvent = (type: string, payload: any) => {
+    socket.send(JSON.stringify({ type, payload }))
 }
