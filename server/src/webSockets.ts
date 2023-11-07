@@ -4,7 +4,7 @@ import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
-import { ChatClientMessage, wsEvent } from "./models/wsMessage";
+import { ChatClientMessage, GameClientIinput, MovePlayer, wsEvent } from "./models/wsMessage";
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 
@@ -27,6 +27,7 @@ export function initWsServer(server: http.Server) {
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
+
         connection.on("close", () => {
             handleClientDisconnect(clientID)
         })
@@ -44,11 +45,102 @@ async function handleClientMessages(message: string) {
                 currentGame?.addMessage(message.content, message.sender)
                 break;
             }
+            case WsMessageTypes.GameInput: {
+                const message: GameClientIinput = messageJSON.payload
+                const currentGame = gamesHashMap.get(message.gameID)
+                if (!currentGame) {
+                    console.log("no current game found, this is a problem")
+                    return
+                }
+
+
+                const newCords = validateUserMove(currentGame, message)
+
+                if (newCords !== undefined) {
+                    const eventType: WsMessageTypes = WsMessageTypes.MovePlayer
+                    const payload: MovePlayer = {
+                        userId: message.userID,
+                        cordinates: newCords
+                    }
+                    const wsMessage = new wsEvent(eventType, payload)
+
+                    broadcastMessageToGamePlayers(wsMessage, currentGame.players)
+
+                    // const wsMessage: wsEvent = JSON.stringify
+                    // const message = new wsEvent("movePlayer",)
+                    //move the player by sending back new cordinates to the client
+                } else {
+                    //in this case the user request will be denied, I think we should not send anything back because 
+                    //it just occupies the connection and we wont do anything in FE with that info anyways
+                }
+                //handle game input from client, for this I will need:
+                // *to know who is the client who sent this, so some sort of ID will be needed - will send it from the FE
+                // *the map of the current game that is happening - I got this one with the game ID that will also be sent from the FE
+
+            }
             default: {
                 break;
             }
         }
     }
+}
+
+function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): { x: number, y: number } | undefined {
+    if (!currentGame) {
+        console.log("no game found, something is wrong")
+        return
+    }
+
+    const CURRENTMAP = currentGame.map.gameMap
+    //over here I will need to check:
+    // * where is the user?
+    // *what is the block that they are trying to move to:
+    // * can they move to that block?
+    let playerindex = 0
+    currentGame.players.forEach((player, index) => {
+        if (player.id === message.userID) {
+            playerindex = index
+        }
+    });
+
+    //now that I know the players number I can check the example below and find them on the map.
+    // playerNumber = playerNumber+2
+
+    const playersPOS = currentGame.players[playerindex].position
+    if (!playersPOS) {
+        console.log("no player pos found, this is a problem")
+        return
+    }
+    console.log("this is the current players position: ", playersPOS)
+
+
+
+    //now I have the players position, I should check if the player can move in the desired direction
+    // we have 4 keys for that... what is the best way to check.... I think just a switch cas should be fine
+
+    switch (message.key) {
+        case "w":
+            //up
+            // return { x: CURRENTMAP[], y: number }
+            return (CURRENTMAP[playersPOS.x][playersPOS.y + 1] === 0) ? { x: playersPOS.x, y: playersPOS.y + 1 } : undefined
+        case "s":
+            //down
+            return (CURRENTMAP[playersPOS.x][playersPOS.y - 1] === 0) ? { x: playersPOS.x, y: playersPOS.y - 1 } : undefined
+        case "a":
+            //left
+            return (CURRENTMAP[playersPOS.x - 1][playersPOS.y] === 0) ? { x: playersPOS.x - 1, y: playersPOS.y } : undefined
+        case "d":
+            return (CURRENTMAP[playersPOS.x + 1][playersPOS.y] === 0) ? { x: playersPOS.x + 1, y: playersPOS.y } : undefined
+        default:
+            return
+    }
+
+    // I have the palyers, but how can I get the one that sent me the data 
+
+    //     3: "player1",
+    //     4: "player2",
+    //     5: "player3",
+    //     6: "player4",
 }
 
 function parseClientMessage(message: string): wsEvent | null {
@@ -114,6 +206,8 @@ function startGame(lobby: Lobby): void {
 
     newGame.broadcastGameStart();
 }
+
+
 
 function findEmptyLobby(): Lobby | null {
     if (lobbiesHashMap.size === 0) {

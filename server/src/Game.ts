@@ -55,6 +55,10 @@ export class Game {
         broadcastMessageToGamePlayers(messagePayLoad, this._players)
     }
 
+    public get map(): gameMap {
+        return this._map
+    }
+
     public get players(): gamePlayer[] {
         return this._players;
     }

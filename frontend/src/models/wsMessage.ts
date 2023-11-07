@@ -1,10 +1,10 @@
-import {  WsMessageTypes } from './constants'
+import { WsMessageTypes } from './constants'
 
-export class wsEvent  {
-    type:WsMessageTypes
-    payload:any
+export class wsEvent {
+    type: WsMessageTypes
+    payload: any
 
-    constructor(type:WsMessageTypes, payload:any){
+    constructor(type: WsMessageTypes, payload: any) {
         this.type = type
         this.payload = payload
     }
@@ -18,8 +18,15 @@ type EnterLobbyClientMessage = {
 export type ChatClientMessage = {
     gameID: string,
     content: string,
-    sender:  string,
+    sender: string,
 };
+
+export type GameClientIinput = {
+    gameID: string,
+    userID: string,
+    sender: string,
+    key: string,
+}
 
 type ConnectServerMessage = {
     clientID: string
@@ -41,6 +48,6 @@ type StartGameMessage = {
 
 export type ChatMessage = {
     timestamp: Date
-    message:string
-    sender:string
+    message: string
+    sender: string
 }
