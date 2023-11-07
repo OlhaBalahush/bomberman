@@ -38,6 +38,7 @@ export const connectWS= () => {
                 break
             case WsMessageTypes.StartGame:
                 sessionStorage.setItem("gameID", eventData.gameID)
+                sessionStorage.setItem("map", eventData.map.map(row => row.join(',')).join(','))
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:

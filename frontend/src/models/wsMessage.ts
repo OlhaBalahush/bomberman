@@ -35,7 +35,8 @@ export type TimerUpdates = {
 }
 
 type StartGameMessage = {
-    gameID: string
+    gameID: string,
+    map: number[][]
 }
 
 export type ChatMessage = {
