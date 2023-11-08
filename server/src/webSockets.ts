@@ -52,18 +52,11 @@ async function handleClientMessages(message: string) {
                     console.log("no current game found, this is a problem")
                     return
                 }
+                const payload = validateUserMove(currentGame, message)
 
-
-                const newCords = validateUserMove(currentGame, message)
-
-                if (newCords !== undefined) {
+                if (payload !== undefined) {
                     const eventType: WsMessageTypes = WsMessageTypes.MovePlayer
-                    const payload: MovePlayer = {
-                        userId: message.userID,
-                        cordinates: newCords
-                    }
                     const wsMessage = new wsEvent(eventType, payload)
-
                     broadcastMessageToGamePlayers(wsMessage, currentGame.players)
 
                     // const wsMessage: wsEvent = JSON.stringify
@@ -85,7 +78,7 @@ async function handleClientMessages(message: string) {
     }
 }
 
-function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): { x: number, y: number } | undefined {
+function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): MovePlayer | undefined {
     if (!currentGame) {
         console.log("no game found, something is wrong")
         return
@@ -113,26 +106,56 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     }
     console.log("this is the current players position: ", playersPOS)
 
-
+    //I need to add the changes to the map object so when a new request comes in it is updated
 
     //now I have the players position, I should check if the player can move in the desired direction
     // we have 4 keys for that... what is the best way to check.... I think just a switch cas should be fine
-
+    let validMove = false
+    let newCords;
     switch (message.key) {
         case "w":
             //up
-            // return { x: CURRENTMAP[], y: number }
-            return (CURRENTMAP[playersPOS.x][playersPOS.y + 1] === 0) ? { x: playersPOS.x, y: playersPOS.y + 1 } : undefined
+            validMove = (CURRENTMAP[playersPOS.y - 1][playersPOS.x] === 0)
+            newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
+            // return (CURRENTMAP[playersPOS.y + 1][playersPOS.x] === 0) ? { x: playersPOS.x, y: playersPOS.y + 1 } : undefined
+            break;
         case "s":
             //down
-            return (CURRENTMAP[playersPOS.x][playersPOS.y - 1] === 0) ? { x: playersPOS.x, y: playersPOS.y - 1 } : undefined
+            validMove = (CURRENTMAP[playersPOS.y + 1][playersPOS.x] === 0)
+            newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
+            // return (CURRENTMAP[playersPOS.y - 1][playersPOS.x] === 0) ? { x: playersPOS.x, y: playersPOS.y - 1 } : undefined
+            break;
         case "a":
             //left
-            return (CURRENTMAP[playersPOS.x - 1][playersPOS.y] === 0) ? { x: playersPOS.x - 1, y: playersPOS.y } : undefined
+            validMove = (CURRENTMAP[playersPOS.y][playersPOS.x - 1] === 0)
+            newCords = { x: playersPOS.x - 1, y: playersPOS.y }
+            // return (CURRENTMAP[playersPOS.y][playersPOS.x - 1] === 0) ? { x: playersPOS.x - 1, y: playersPOS.y } : undefined
+            break;
         case "d":
-            return (CURRENTMAP[playersPOS.x + 1][playersPOS.y] === 0) ? { x: playersPOS.x + 1, y: playersPOS.y } : undefined
+            validMove = (CURRENTMAP[playersPOS.y][playersPOS.x + 1] === 0)
+            newCords = { x: playersPOS.x + 1, y: playersPOS.y }
+            // return (CURRENTMAP[playersPOS.y][playersPOS.x + 1] === 0) ? { x: playersPOS.x + 1, y: playersPOS.y } : undefined
+            break;
         default:
             return
+    }
+
+    if (validMove) {
+        console.log("map object before: ", currentGame.map.gameMap)
+        currentGame.map.gameMap[playersPOS.y][playersPOS.x] = 0
+        currentGame.map.gameMap[newCords.y][newCords.x] = playerindex + 3 // index + 3 becaue of the way we have palyers set up, look at table below'
+        console.log("map object after: ", currentGame.map.gameMap)
+        console.log("player object pos before: ", currentGame.players[playerindex].position);
+        const payload: MovePlayer = {
+            playerIndex: playerindex,
+            previousPosition: { x: playersPOS.x, y: playersPOS.y },
+            cordinates: newCords
+        }
+        currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
+        console.log("player object pos after: ", currentGame.players[playerindex].position);
+        return payload;
+    } else {
+        return
     }
 
     // I have the palyers, but how can I get the one that sent me the data 

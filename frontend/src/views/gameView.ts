@@ -1,9 +1,38 @@
 import { createDOMElement, useStateManager } from "mini-framework";
 import { sendEvent } from "../websocket";
 import { navigateTo } from "../main";
-import { ChatMessage, MovePlayer, GameClientIinput } from "../models/wsMessage";
+import { ChatMessage, PlayerCords, GameClientIinput } from "../models/wsMessage";
 import { WsMessageTypes } from "../models/constants";
 import { renderMap } from "../map";
+import { peers } from "../map"
+
+export function MovePlayer(data: PlayerCords) {
+    console.log("data received to move player from : " + data.previousPosition.x + ":" + data.previousPosition.y + " to: " + data.cordinates.x, data.cordinates.y);
+    //delete the player from current location
+    const previousBlock = document.getElementById(`cell-${data.previousPosition.x}-${data.previousPosition.y}`)
+    if (previousBlock) {
+        previousBlock.innerHTML = ""
+    } else {
+        console.log("error remvoing player from previous position")
+    }
+
+    const newBlockElement = document.getElementById(`cell-${data.cordinates.x}-${data.cordinates.y}`)
+    if (newBlockElement) {
+        console.log(newBlockElement)
+        console.log(newBlockElement.innerHTML)
+        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+        console.log(playerElement)
+        newBlockElement.appendChild(playerElement.element)
+    } else {
+        console.log("error in adding new player to pos")
+    }
+
+
+
+    //mby I should send, oldCords and newCords so I could remove the player from the prevoius location :DONE
+    // userId: string,
+    // cordinates: { x: number, y: number }
+}
 
 export const gameView = () => {
     let gameTime = useStateManager("240") //TODO connect with be
@@ -49,21 +78,23 @@ export const gameView = () => {
 
     const map = renderMap(flatmap)
 
-    function MovePlayer(data: MovePlayer) {
-        console.log("data received to move player: " + data)
-    }
-
-
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowLeft') {
-            // send left movement
+        let key;
 
-        } else if (event.key === 'ArrowRight') {
+        if (event.key === 'a') {
+            key = "a"
+        } else if (event.key === 'd') {
             // send right movement
-        } else if (event.key === 'ArrowUp') {
+            key = "d"
+        } else if (event.key === 'w') {
             // send up movement
-        } else if (event.key === 'ArrowDown') {
+            key = "w"
+        } else if (event.key === 's') {
             // send down movement
+            key = "s"
+        } else {
+            console.log("no correct key pressed")
+            return
         }
 
         const gameId = sessionStorage.getItem("gameID")
@@ -72,14 +103,21 @@ export const gameView = () => {
             return
         }
 
-        const playerID = sessionStorage.getItem("playerID")
+        const playerID = sessionStorage.getItem("clientID")
+        if (!playerID) {
+            console.log("no player ID available")
+            return
+        }
 
 
-        // const payload: GameClientIinput = {
-        //     gameID: gameId,
 
-        // }
-        // sendEvent(WsMessageTypes.GameInput, payload)
+        const payload: GameClientIinput = {
+            gameID: gameId,
+            userID: playerID,
+            key: key,
+        }
+
+        sendEvent(WsMessageTypes.GameInput, payload)
     });
 
 

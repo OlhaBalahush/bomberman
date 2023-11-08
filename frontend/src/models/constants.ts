@@ -8,6 +8,6 @@ export enum WsMessageTypes {
     StartGame = "startGame",
     ChatMessage = "chatMessage",
     GameInput = "gameInput",
-    MovePlayer = "movePlayer",
+    PlayerCords = "movePlayer",
 }
 

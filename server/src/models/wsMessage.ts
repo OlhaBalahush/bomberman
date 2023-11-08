@@ -25,12 +25,12 @@ export type ChatClientMessage = {
 export type GameClientIinput = {
     gameID: string,
     userID: string,
-    sender: string,
     key: string,
 }
 
 export type MovePlayer = {
-    userId: string,
+    playerIndex: number,
+    previousPosition: { x: number, y: number }
     cordinates: { x: number, y: number }
 }
 

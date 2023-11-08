@@ -1,6 +1,6 @@
 import { createDOMElement } from "mini-framework";
 
-const peers: string[] = [
+export const peers: string[] = [
     'https://media.discordapp.net/attachments/1160893534635839524/1165628274160959538/player1.png?ex=6559ffec&is=65478aec&hm=78e299cbfc1ff2a9c43820fe2d61e1a75a32e023a433d6799a914e1ab299cea5&=',
     'https://media.discordapp.net/attachments/1160893534635839524/1165628273892536370/player2.png?ex=6559ffec&is=65478aec&hm=b6bd7f74754933cc178072c4d287ccf4a224920fc221fd306a7438f5d5c758bc&=',
     'https://media.discordapp.net/attachments/1160893534635839524/1165628273636687942/player3.png?ex=6559ffec&is=65478aec&hm=fdd0ad119a32e69c5dcbc3fd03c33b55f03728ea0970a6abf2d779a74d4786e9&=',

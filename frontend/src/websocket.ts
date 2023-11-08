@@ -1,7 +1,8 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
-import { EnterLobbyServerMessage, TimerUpdates, MovePlayer } from "./models/wsMessage";
+import { EnterLobbyServerMessage, TimerUpdates, PlayerCords } from "./models/wsMessage";
 import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
+import { MovePlayer } from "./views/gameView";
 
 export let socket: WebSocket
 
@@ -49,9 +50,9 @@ export const connectWS = () => {
                 const message = new CustomEvent("newMessage", { detail: eventData })
                 document.dispatchEvent(message)
                 break
-            case WsMessageTypes.MovePlayer:
-                const newCords = eventData as MovePlayer
-
+            case WsMessageTypes.PlayerCords:
+                const newCords = eventData as PlayerCords
+                MovePlayer(newCords)
                 break
             default:
                 console.log("error unknow ws connection message type: ", event.type)

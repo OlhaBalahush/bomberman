@@ -12,17 +12,17 @@ const Routes = {
     "/game": gameView
 }
 
-export const navigateTo = (pathname:string)=>{
+export const navigateTo = (pathname: string) => {
     var e = document.body
-    var child = e.lastElementChild;  
-    while (child) { 
-        e.removeChild(child); 
-        child = e.lastElementChild; 
-    } 
+    var child = e.lastElementChild;
+    while (child) {
+        e.removeChild(child);
+        child = e.lastElementChild;
+    }
     window.history.pushState({}, pathname, window.location.origin + pathname);
     const view = Routes[pathname]()
 
-    if(view) document.body.appendChild(view.element)
+    if (view) document.body.appendChild(view.element)
 }
 
 const currentURL = document.location.pathname
