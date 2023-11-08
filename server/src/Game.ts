@@ -4,6 +4,7 @@ import { WsMessageTypes } from './models/constants'
 import { ChatMessage, wsEvent } from "./models/wsMessage";
 import { gamePlayer } from "./models/player";
 import { gameMap } from "./map";
+import { v4 as uuidv4 } from "uuid";
 
 //TODO:
 export class Game {
@@ -25,6 +26,7 @@ export class Game {
     addPlayer(id: string, username: string): void {
         let player = new gamePlayer(id, username)
         this._players.push(player);
+
     }
 
     removePlayer(playerID: string): void {

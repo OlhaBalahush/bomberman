@@ -5,17 +5,14 @@ import { EnterLobbyServerMessage, TimerUpdates, wsEvent } from "../models/wsMess
 
 export let TimerCountDown = useStateManager("0")
 
-
 export const lobbyView = () => {
-
     let playerCountInLobby = useStateManager("1")
 
-    if(!sessionStorage.getItem("username")){
+    if (!sessionStorage.getItem("username")) {
         navigateTo("/")
         return
     }
-    
-    connectWS()
+    // connectWS()
 
     const HTML = createDOMElement("div", {
         class: "min-h-screen flex items-center justify-center bg-neutral-600"
@@ -33,7 +30,7 @@ export const lobbyView = () => {
     return HTML
 }
 
-export function addPlayerCount(eventData:EnterLobbyServerMessage){
+export function addPlayerCount(eventData: EnterLobbyServerMessage) {
     const playerCountContainer = document.getElementById("playerCount")
     const playerCount = eventData.playerCount
 
@@ -42,7 +39,7 @@ export function addPlayerCount(eventData:EnterLobbyServerMessage){
     }
 }
 
-export function twentySecondTimer(eventData:TimerUpdates){
+export function twentySecondTimer(eventData: TimerUpdates) {
     const timerSeconds = eventData.seconds
     const fristTimerText = document.getElementById("firstTimer")
     let isHidden = true;
@@ -60,7 +57,7 @@ export function twentySecondTimer(eventData:TimerUpdates){
     }
 }
 
-export function tenSecondTimer(eventData:TimerUpdates){
+export function tenSecondTimer(eventData: TimerUpdates) {
     const timerseconds = eventData.seconds
     const secondTimer = document.getElementById("secondTimer")
 

@@ -17,13 +17,20 @@ export class Lobby {
     }
 
     addPlayer(player: wsPlayer): void {
+        const success: wsEvent = {
+            type: WsMessageTypes.LobbyJoinSuccess,
+            payload: {
+                clientID: player.id
+            }
+        }
         if (this.getCountOfPlayers() < 4) {
             this._players.push(player);
+            broadcastMessage(success, [player])
         } else {
             console.log("Lobby with id " + this._id + " has already " + this.getCountOfPlayers + " players.")
         }
-    }
 
+    }
     getCountOfPlayers = (): number => this._players.length;
 
     isFull = (): boolean => this.getCountOfPlayers() === 4;
@@ -39,7 +46,7 @@ export class Lobby {
     broadcastPlayerCountChange(): void {
         const messagePayLoad: wsEvent = {
             "type": WsMessageTypes.EnterLobby,
-            "payload":{
+            "payload": {
                 "playerCount": this.getCountOfPlayers(),
             }
         }
@@ -49,7 +56,7 @@ export class Lobby {
     broadcastTimerChange(remainingTime: number, timerType: number): void {
         const messagePayLoad: wsEvent = {
             "type": timerType === 20 ? WsMessageTypes.TwentySecondTimer : WsMessageTypes.TenSecondTimer,
-            "payload":{
+            "payload": {
                 "seconds": remainingTime,
             }
         }
