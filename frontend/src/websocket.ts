@@ -44,8 +44,6 @@ export const connectWS = () => {
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:
-                const message = new CustomEvent("newMessage", { detail: eventData })
-                document.dispatchEvent(message)
                 document.dispatchEvent(new CustomEvent("newMessage", {detail:eventData}))
                 break
             case WsMessageTypes.GameOver:
