@@ -63,7 +63,7 @@ export class Game {
             if (player.lives < 1) this.gameOver(player.id, "game over!")
             return player.lives > 0
         });
-        alive.forEach(player => this.gameOver(player.id, `you win ${player.id}`))
+
         if (alive.length === 1) {
             alive.forEach(player => this.gameOver(player.id, "you win!"))
         }

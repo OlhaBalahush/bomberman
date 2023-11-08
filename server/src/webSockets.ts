@@ -167,7 +167,6 @@ function parseClientMessage(message: string): wsEvent | null {
 
 export function addPlayerToLobby(player: wsPlayer): void {
     const lobbyToJoin = findEmptyLobby();
-    console.log("LOBBY TO JOIN", lobbyToJoin)
     let tenSeconds = 10
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
