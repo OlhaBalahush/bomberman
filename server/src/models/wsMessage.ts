@@ -28,7 +28,7 @@ export type GameClientIinput = {
     key: string,
 }
 
-export type MovePlayer = {
+export type PlayerCords = {
     playerIndex: number,
     previousPosition: { x: number, y: number }
     cordinates: { x: number, y: number }

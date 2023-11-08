@@ -4,7 +4,7 @@ import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
-import { ChatClientMessage, GameClientIinput, MovePlayer, wsEvent } from "./models/wsMessage";
+import { ChatClientMessage, GameClientIinput, PlayerCords, wsEvent } from "./models/wsMessage";
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 
@@ -55,21 +55,14 @@ async function handleClientMessages(message: string) {
                 const payload = validateUserMove(currentGame, message)
 
                 if (payload !== undefined) {
+                    //move the player by sending back new cordinates to the client
                     const eventType: WsMessageTypes = WsMessageTypes.MovePlayer
                     const wsMessage = new wsEvent(eventType, payload)
                     broadcastMessageToGamePlayers(wsMessage, currentGame.players)
-
-                    // const wsMessage: wsEvent = JSON.stringify
-                    // const message = new wsEvent("movePlayer",)
-                    //move the player by sending back new cordinates to the client
                 } else {
                     //in this case the user request will be denied, I think we should not send anything back because 
-                    //it just occupies the connection and we wont do anything in FE with that info anyways
+                    //it just uses resources and we wont do anything in FE with that info anyways
                 }
-                //handle game input from client, for this I will need:
-                // *to know who is the client who sent this, so some sort of ID will be needed - will send it from the FE
-                // *the map of the current game that is happening - I got this one with the game ID that will also be sent from the FE
-
             }
             default: {
                 break;
@@ -78,26 +71,21 @@ async function handleClientMessages(message: string) {
     }
 }
 
-function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): MovePlayer | undefined {
+function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): PlayerCords | undefined {
     if (!currentGame) {
-        console.log("no game found, something is wrong")
+        console.log("no game found, something went wrong");
         return
     }
 
     const CURRENTMAP = currentGame.map.gameMap
-    //over here I will need to check:
-    // * where is the user?
-    // *what is the block that they are trying to move to:
-    // * can they move to that block?
     let playerindex = 0
+
+    //finding the user that sent the request
     currentGame.players.forEach((player, index) => {
         if (player.id === message.userID) {
             playerindex = index
         }
     });
-
-    //now that I know the players number I can check the example below and find them on the map.
-    // playerNumber = playerNumber+2
 
     const playersPOS = currentGame.players[playerindex].position
     if (!playersPOS) {
@@ -106,10 +94,7 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     }
     console.log("this is the current players position: ", playersPOS)
 
-    //I need to add the changes to the map object so when a new request comes in it is updated
-
-    //now I have the players position, I should check if the player can move in the desired direction
-    // we have 4 keys for that... what is the best way to check.... I think just a switch cas should be fine
+    //validate the move:
     let validMove = false
     let newCords;
     switch (message.key) {
@@ -117,49 +102,43 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             //up
             validMove = (CURRENTMAP[playersPOS.y - 1][playersPOS.x] === 0)
             newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
-            // return (CURRENTMAP[playersPOS.y + 1][playersPOS.x] === 0) ? { x: playersPOS.x, y: playersPOS.y + 1 } : undefined
             break;
         case "s":
             //down
             validMove = (CURRENTMAP[playersPOS.y + 1][playersPOS.x] === 0)
             newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
-            // return (CURRENTMAP[playersPOS.y - 1][playersPOS.x] === 0) ? { x: playersPOS.x, y: playersPOS.y - 1 } : undefined
             break;
         case "a":
             //left
             validMove = (CURRENTMAP[playersPOS.y][playersPOS.x - 1] === 0)
             newCords = { x: playersPOS.x - 1, y: playersPOS.y }
-            // return (CURRENTMAP[playersPOS.y][playersPOS.x - 1] === 0) ? { x: playersPOS.x - 1, y: playersPOS.y } : undefined
             break;
         case "d":
+            //right
             validMove = (CURRENTMAP[playersPOS.y][playersPOS.x + 1] === 0)
             newCords = { x: playersPOS.x + 1, y: playersPOS.y }
-            // return (CURRENTMAP[playersPOS.y][playersPOS.x + 1] === 0) ? { x: playersPOS.x + 1, y: playersPOS.y } : undefined
             break;
         default:
             return
     }
 
+    //if valid, change the map object and player objects position properties to new ones and return payload
     if (validMove) {
-        console.log("map object before: ", currentGame.map.gameMap)
         currentGame.map.gameMap[playersPOS.y][playersPOS.x] = 0
-        currentGame.map.gameMap[newCords.y][newCords.x] = playerindex + 3 // index + 3 becaue of the way we have palyers set up, look at table below'
-        console.log("map object after: ", currentGame.map.gameMap)
-        console.log("player object pos before: ", currentGame.players[playerindex].position);
-        const payload: MovePlayer = {
+        currentGame.map.gameMap[newCords.y][newCords.x] = playerindex + 3 // index + 3 because of the way we have the players set up on the map, look at table below
+
+        const payload: PlayerCords = {
             playerIndex: playerindex,
             previousPosition: { x: playersPOS.x, y: playersPOS.y },
             cordinates: newCords
         }
+
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
-        console.log("player object pos after: ", currentGame.players[playerindex].position);
         return payload;
     } else {
         return
     }
-
-    // I have the palyers, but how can I get the one that sent me the data 
-
+    //player values:
     //     3: "player1",
     //     4: "player2",
     //     5: "player3",

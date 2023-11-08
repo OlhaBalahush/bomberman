@@ -7,8 +7,7 @@ import { renderMap } from "../map";
 import { peers } from "../map"
 
 export function MovePlayer(data: PlayerCords) {
-    console.log("data received to move player from : " + data.previousPosition.x + ":" + data.previousPosition.y + " to: " + data.cordinates.x, data.cordinates.y);
-    //delete the player from current location
+    //delete player from previous location:
     const previousBlock = document.getElementById(`cell-${data.previousPosition.x}-${data.previousPosition.y}`)
     if (previousBlock) {
         previousBlock.innerHTML = ""
@@ -16,22 +15,14 @@ export function MovePlayer(data: PlayerCords) {
         console.log("error remvoing player from previous position")
     }
 
+    //draw player at new position:
     const newBlockElement = document.getElementById(`cell-${data.cordinates.x}-${data.cordinates.y}`)
     if (newBlockElement) {
-        console.log(newBlockElement)
-        console.log(newBlockElement.innerHTML)
         const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "max-h-[60px] object-scale-down" }, [])
-        console.log(playerElement)
         newBlockElement.appendChild(playerElement.element)
     } else {
         console.log("error in adding new player to pos")
     }
-
-
-
-    //mby I should send, oldCords and newCords so I could remove the player from the prevoius location :DONE
-    // userId: string,
-    // cordinates: { x: number, y: number }
 }
 
 export const gameView = () => {
@@ -79,19 +70,24 @@ export const gameView = () => {
     const map = renderMap(flatmap)
 
     document.addEventListener('keydown', (event) => {
+        //check if user in focused into the game and not into the chat:
+        const chatInput = document.getElementById("chat-input")
+
+        if (document.activeElement === chatInput) {
+            return
+        }
+
+        const validMoves = {
+            "a": "a",
+            "s": "s",
+            "d": "d",
+            "w": "w",
+        }
+
         let key;
 
-        if (event.key === 'a') {
-            key = "a"
-        } else if (event.key === 'd') {
-            // send right movement
-            key = "d"
-        } else if (event.key === 'w') {
-            // send up movement
-            key = "w"
-        } else if (event.key === 's') {
-            // send down movement
-            key = "s"
+        if (validMoves[event.key]) {
+            key = event.key
         } else {
             console.log("no correct key pressed")
             return
@@ -109,8 +105,6 @@ export const gameView = () => {
             return
         }
 
-
-
         const payload: GameClientIinput = {
             gameID: gameId,
             userID: playerID,
@@ -119,7 +113,6 @@ export const gameView = () => {
 
         sendEvent(WsMessageTypes.GameInput, payload)
     });
-
 
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
@@ -134,7 +127,7 @@ export const gameView = () => {
                     createDOMElement("div", { class: "h-[60px] border-2 border-black flex items-center justify-center font-inter text-3xl font-normal text-black uppercase" }, ["chat"]), // Chat text
                     createDOMElement("div", { class: "p-4 flex-1 border-2 border-black" }, [
                         createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" }),
-                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
+                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
                     ]) // Inner container
                 ]), // Chat bar on the left
 
@@ -143,8 +136,4 @@ export const gameView = () => {
         ])
     ]);
 }
-
-
-
-
 // exmpl:  createDOMElement("div", {}, [])

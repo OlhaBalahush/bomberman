@@ -12,9 +12,7 @@ export const connectWS = () => {
     socket.onopen = (event) => {
         console.log('WebSocket connection is open:', event);
 
-        //TODO: send a message to backenc with the Players username
         const PlayersUsername = sessionStorage.getItem('username');
-
         if (PlayersUsername) {
             sendEvent("", { Username: PlayersUsername })
         } else {
@@ -22,7 +20,6 @@ export const connectWS = () => {
         }
     };
 
-    //TODO make sure that everything here works properly because currently it is full of placeholders
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
         console.log('WebSocket message received:', data);
