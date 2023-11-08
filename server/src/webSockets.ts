@@ -94,28 +94,30 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     }
     console.log("this is the current players position: ", playersPOS)
 
+    //these are numbers of either free spots (0) or other players (3,4,5,6) that the user can walk into:
+    const validNumbers = [0, 3, 4, 5, 6]
     //validate the move:
     let validMove = false
     let newCords;
     switch (message.key) {
         case "w":
             //up
-            validMove = (CURRENTMAP[playersPOS.y - 1][playersPOS.x] === 0)
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y - 1][playersPOS.x]))
             newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
             break;
         case "s":
             //down
-            validMove = (CURRENTMAP[playersPOS.y + 1][playersPOS.x] === 0)
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y + 1][playersPOS.x]))
             newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
             break;
         case "a":
             //left
-            validMove = (CURRENTMAP[playersPOS.y][playersPOS.x - 1] === 0)
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x - 1]))
             newCords = { x: playersPOS.x - 1, y: playersPOS.y }
             break;
         case "d":
             //right
-            validMove = (CURRENTMAP[playersPOS.y][playersPOS.x + 1] === 0)
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x + 1]))
             newCords = { x: playersPOS.x + 1, y: playersPOS.y }
             break;
         default:
@@ -130,7 +132,7 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         const payload: PlayerCords = {
             playerIndex: playerindex,
             previousPosition: { x: playersPOS.x, y: playersPOS.y },
-            cordinates: newCords
+            futurePosition: newCords
         }
 
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)

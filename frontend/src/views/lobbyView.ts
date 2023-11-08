@@ -12,7 +12,6 @@ export const lobbyView = () => {
         navigateTo("/")
         return
     }
-    // connectWS()
 
     const HTML = createDOMElement("div", {
         class: "min-h-screen flex items-center justify-center bg-neutral-600"
@@ -90,5 +89,3 @@ export function tenSecondTimer(eventData: TimerUpdates) {
     }
 
 }
-
-// exmpl:  createDOMElement("div", {}, [])

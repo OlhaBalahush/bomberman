@@ -43,25 +43,25 @@ export function renderMap(flatString: string) {
                     break;
                 case 3:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[0], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+                        createDOMElement("img", { src: peers[0], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-0" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 4:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[1], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+                        createDOMElement("img", { src: peers[1], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-1" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 5:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[2], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+                        createDOMElement("img", { src: peers[2], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-2" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 6:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[3], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+                        createDOMElement("img", { src: peers[3], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-3" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;

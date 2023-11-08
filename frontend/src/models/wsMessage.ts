@@ -30,7 +30,7 @@ export type GameClientIinput = {
 export type PlayerCords = {
     playerIndex: number,
     previousPosition: { x: number, y: number }
-    cordinates: { x: number, y: number }
+    futurePosition: { x: number, y: number }
 }
 
 type ConnectServerMessage = {

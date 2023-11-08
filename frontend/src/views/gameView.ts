@@ -8,17 +8,17 @@ import { peers } from "../map"
 
 export function MovePlayer(data: PlayerCords) {
     //delete player from previous location:
-    const previousBlock = document.getElementById(`cell-${data.previousPosition.x}-${data.previousPosition.y}`)
+    const previousBlock = document.getElementById(`character-${data.playerIndex}`)
     if (previousBlock) {
-        previousBlock.innerHTML = ""
+        previousBlock.remove();
     } else {
         console.log("error remvoing player from previous position")
     }
 
     //draw player at new position:
-    const newBlockElement = document.getElementById(`cell-${data.cordinates.x}-${data.cordinates.y}`)
+    const newBlockElement = document.getElementById(`cell-${data.futurePosition.x}-${data.futurePosition.y}`)
     if (newBlockElement) {
-        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "max-h-[60px] object-scale-down" }, [])
+        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "absolute max-h-[60px] object-scale-down", id: `character-${data.playerIndex}` }, [])
         newBlockElement.appendChild(playerElement.element)
     } else {
         console.log("error in adding new player to pos")
@@ -89,7 +89,7 @@ export const gameView = () => {
         if (validMoves[event.key]) {
             key = event.key
         } else {
-            console.log("no correct key pressed")
+            // console.log("no correct key pressed")
             return
         }
 
