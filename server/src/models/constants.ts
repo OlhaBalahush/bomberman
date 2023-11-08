@@ -7,5 +7,7 @@ export enum WsMessageTypes {
     TenSecondTimer = "startTenSecondTimer",
     StartGame = "startGame",
     ChatMessage = "chatMessage",
+    GameInput = "gameInput",
+    MovePlayer = "movePlayer",
 }
 

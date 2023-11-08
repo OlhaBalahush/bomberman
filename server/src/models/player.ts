@@ -8,7 +8,6 @@ export class gamePlayer {
         speed: number
     }
     private _position: { x: number, y: number }
-
     constructor(id: string, username: string) {
         this._id = id
         this._username = username

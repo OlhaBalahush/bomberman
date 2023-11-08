@@ -1,9 +1,29 @@
 import { createDOMElement, useStateManager } from "mini-framework";
 import { sendEvent } from "../websocket";
 import { navigateTo } from "../main";
-import { ChatMessage } from "../models/wsMessage";
+import { ChatMessage, PlayerCords, GameClientIinput } from "../models/wsMessage";
 import { WsMessageTypes } from "../models/constants";
 import { renderMap } from "../map";
+import { peers } from "../map"
+
+export function MovePlayer(data: PlayerCords) {
+    //delete player from previous location:
+    const previousBlock = document.getElementById(`character-${data.playerIndex}`)
+    if (previousBlock) {
+        previousBlock.remove();
+    } else {
+        console.log("error remvoing player from previous position")
+    }
+
+    //draw player at new position:
+    const newBlockElement = document.getElementById(`cell-${data.futurePosition.x}-${data.futurePosition.y}`)
+    if (newBlockElement) {
+        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "absolute max-h-[60px] object-scale-down", id: `character-${data.playerIndex}` }, [])
+        newBlockElement.appendChild(playerElement.element)
+    } else {
+        console.log("error in adding new player to pos")
+    }
+}
 
 export const gameView = () => {
     let gameTime = useStateManager("240") //TODO connect with be
@@ -49,6 +69,52 @@ export const gameView = () => {
 
     const map = renderMap(flatmap)
 
+    document.addEventListener('keydown', (event) => {
+        //check if user in focused into the game and not into the chat:
+        const chatInput = document.getElementById("chat-input")
+
+        if (document.activeElement === chatInput) {
+            return
+        }
+
+        const validMoves = {
+            "a": "a",
+            "s": "s",
+            "d": "d",
+            "w": "w",
+        }
+
+        let key;
+
+        if (validMoves[event.key]) {
+            key = event.key
+        } else {
+            // console.log("no correct key pressed")
+            return
+        }
+
+        const gameId = sessionStorage.getItem("gameID")
+        if (!gameId) {
+            console.log("no game ID available")
+            return
+        }
+
+        const playerID = sessionStorage.getItem("clientID")
+        if (!playerID) {
+            console.log("no player ID available")
+            return
+        }
+
+        const payload: GameClientIinput = {
+            gameID: gameId,
+            userID: playerID,
+            key: key,
+        }
+
+        sendEvent(WsMessageTypes.GameInput, payload)
+    });
+
+
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
         createDOMElement("div", { class: "border-1 border-black flex flex-col", id: "gameBox" }, [
             createDOMElement("div", { class: "h-[57px] bg-neutral-200 border-2 border-black p-2 flex items-center" }, [
@@ -61,7 +127,7 @@ export const gameView = () => {
                     createDOMElement("div", { class: "h-[60px] border-2 border-black flex items-center justify-center font-inter text-3xl font-normal text-black uppercase" }, ["chat"]), // Chat text
                     createDOMElement("div", { class: "p-4 flex-1 border-2 border-black" }, [
                         createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" }),
-                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
+                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
                     ]) // Inner container
                 ]), // Chat bar on the left
 
@@ -70,8 +136,4 @@ export const gameView = () => {
         ])
     ]);
 }
-
-
-
-
 // exmpl:  createDOMElement("div", {}, [])

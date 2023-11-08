@@ -2,10 +2,12 @@ export enum WsMessageTypes {
     //TODO: map all ws events
     Connect = "connect",
     EnterLobby = "enterLobby",
-    lobbyJoinSuccess = "lobbyJoinSuccess",
+    LobbyJoinSuccess = "lobbyJoinSuccess",
     TwentySecondTimer = "startTwentySecondTimer",
     TenSecondTimer = "startTenSecondTimer",
     StartGame = "startGame",
     ChatMessage = "chatMessage",
+    GameInput = "gameInput",
+    PlayerCords = "movePlayer",
 }
 

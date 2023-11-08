@@ -1,32 +1,34 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
-import { EnterLobbyServerMessage, TimerUpdates } from "./models/wsMessage";
-import { addPlayerCount, tenSecondTimer, twentySecondTimer } from "./views/lobbyView";
+import { EnterLobbyServerMessage, TimerUpdates, PlayerCords } from "./models/wsMessage";
+import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
+import { MovePlayer } from "./views/gameView";
 
-export let socket:WebSocket
+export let socket: WebSocket
 
-export const connectWS= () => {
+export const connectWS = () => {
     socket = new WebSocket("ws://localhost:8080/ws")
 
     socket.onopen = (event) => {
         console.log('WebSocket connection is open:', event);
 
-        //TODO: send a message to backenc with the Players username
         const PlayersUsername = sessionStorage.getItem('username');
-
         if (PlayersUsername) {
-            sendEvent("",{Username:PlayersUsername})
+            sendEvent("", { Username: PlayersUsername })
         } else {
             sendEvent("", { error: "error getting players username" })
         }
     };
 
-    //TODO make sure that everything here works properly because currently it is full of placeholders
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
         console.log('WebSocket message received:', data);
         const eventData = data.payload
         switch (data.type) {
+            case WsMessageTypes.LobbyJoinSuccess:
+                sessionStorage.setItem("clientID", eventData.clientID)
+                navigateTo("/waiting-room")
+                break
             case WsMessageTypes.EnterLobby:
                 addPlayerCount(eventData as EnterLobbyServerMessage)
                 break;
@@ -42,8 +44,12 @@ export const connectWS= () => {
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:
-                const message = new CustomEvent("newMessage", {detail:eventData})
+                const message = new CustomEvent("newMessage", { detail: eventData })
                 document.dispatchEvent(message)
+                break
+            case WsMessageTypes.PlayerCords:
+                const newCords = eventData as PlayerCords
+                MovePlayer(newCords)
                 break
             default:
                 console.log("error unknow ws connection message type: ", event.type)
@@ -60,10 +66,10 @@ export const connectWS= () => {
 
     socket.addEventListener('error', (event) => {
         console.error('WebSocket error:', event);
-});
+    });
 
 }
 
-export const sendEvent = (type:string, payload:any) => {
-    socket.send(JSON.stringify({type,payload}) )
+export const sendEvent = (type: string, payload: any) => {
+    socket.send(JSON.stringify({ type, payload }))
 }

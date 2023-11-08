@@ -4,7 +4,7 @@ import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
-import { ChatClientMessage, wsEvent } from "./models/wsMessage";
+import { ChatClientMessage, GameClientIinput, PlayerCords, wsEvent } from "./models/wsMessage";
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 
@@ -27,6 +27,7 @@ export function initWsServer(server: http.Server) {
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
+
         connection.on("close", () => {
             handleClientDisconnect(clientID)
         })
@@ -44,11 +45,106 @@ async function handleClientMessages(message: string) {
                 currentGame?.addMessage(message.content, message.sender)
                 break;
             }
+            case WsMessageTypes.GameInput: {
+                const message: GameClientIinput = messageJSON.payload
+                const currentGame = gamesHashMap.get(message.gameID)
+                if (!currentGame) {
+                    console.log("no current game found, this is a problem")
+                    return
+                }
+                const payload = validateUserMove(currentGame, message)
+
+                if (payload !== undefined) {
+                    //move the player by sending back new cordinates to the client
+                    const eventType: WsMessageTypes = WsMessageTypes.MovePlayer
+                    const wsMessage = new wsEvent(eventType, payload)
+                    broadcastMessageToGamePlayers(wsMessage, currentGame.players)
+                } else {
+                    //in this case the user request will be denied, I think we should not send anything back because 
+                    //it just uses resources and we wont do anything in FE with that info anyways
+                }
+            }
             default: {
                 break;
             }
         }
     }
+}
+
+function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): PlayerCords | undefined {
+    if (!currentGame) {
+        console.log("no game found, something went wrong");
+        return
+    }
+
+    const CURRENTMAP = currentGame.map.gameMap
+    let playerindex = 0
+
+    //finding the user that sent the request
+    currentGame.players.forEach((player, index) => {
+        if (player.id === message.userID) {
+            playerindex = index
+        }
+    });
+
+    const playersPOS = currentGame.players[playerindex].position
+    if (!playersPOS) {
+        console.log("no player pos found, this is a problem")
+        return
+    }
+    console.log("this is the current players position: ", playersPOS)
+
+    //these are numbers of either free spots (0) or other players (3,4,5,6) that the user can walk into:
+    const validNumbers = [0, 3, 4, 5, 6]
+    //validate the move:
+    let validMove = false
+    let newCords;
+    switch (message.key) {
+        case "w":
+            //up
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y - 1][playersPOS.x]))
+            newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
+            break;
+        case "s":
+            //down
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y + 1][playersPOS.x]))
+            newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
+            break;
+        case "a":
+            //left
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x - 1]))
+            newCords = { x: playersPOS.x - 1, y: playersPOS.y }
+            break;
+        case "d":
+            //right
+            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x + 1]))
+            newCords = { x: playersPOS.x + 1, y: playersPOS.y }
+            break;
+        default:
+            return
+    }
+
+    //if valid, change the map object and player objects position properties to new ones and return payload
+    if (validMove) {
+        currentGame.map.gameMap[playersPOS.y][playersPOS.x] = 0
+        currentGame.map.gameMap[newCords.y][newCords.x] = playerindex + 3 // index + 3 because of the way we have the players set up on the map, look at table below
+
+        const payload: PlayerCords = {
+            playerIndex: playerindex,
+            previousPosition: { x: playersPOS.x, y: playersPOS.y },
+            futurePosition: newCords
+        }
+
+        currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
+        return payload;
+    } else {
+        return
+    }
+    //player values:
+    //     3: "player1",
+    //     4: "player2",
+    //     5: "player3",
+    //     6: "player4",
 }
 
 function parseClientMessage(message: string): wsEvent | null {
@@ -114,6 +210,8 @@ function startGame(lobby: Lobby): void {
 
     newGame.broadcastGameStart();
 }
+
+
 
 function findEmptyLobby(): Lobby | null {
     if (lobbiesHashMap.size === 0) {
