@@ -17,14 +17,14 @@ export class Lobby {
     }
 
     addPlayer(player: wsPlayer): void {
-        const success: wsEvent = {
-            type: WsMessageTypes.LobbyJoinSuccess,
-            payload: {
-                clientID: player.id
-            }
-        }
-        if (this.getCountOfPlayers() < 4) {
+        if (this.getCountOfPlayers() < 4) { 
             this._players.push(player);
+            const success: wsEvent = {
+                type: WsMessageTypes.LobbyJoinSuccess,
+                payload: {
+                    clientID: player.id
+                }
+            }
             broadcastMessage(success, [player])
         } else {
             console.log("Lobby with id " + this._id + " has already " + this.getCountOfPlayers + " players.")

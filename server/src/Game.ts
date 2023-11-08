@@ -1,5 +1,5 @@
 
-import { broadcastMessage, broadcastMessageToGamePlayers } from "./webSockets";
+import { broadcastMessage, broadcastMessageToGamePlayers, clientsHashMap } from "./webSockets";
 import { WsMessageTypes } from './models/constants'
 import { ChatMessage, wsEvent } from "./models/wsMessage";
 import { gamePlayer } from "./models/player";
@@ -55,6 +55,29 @@ export class Game {
             }
         }
         broadcastMessageToGamePlayers(messagePayLoad, this._players)
+        this.checkGameOver()
+    }
+
+    checkGameOver():void{
+        const alive = this._players = this._players.filter(player => {
+            if (player.lives < 1) this.gameOver(player.id, "game over!")
+            return player.lives > 0
+        });
+        alive.forEach(player => this.gameOver(player.id, `you win ${player.id}`))
+        if (alive.length === 1) {
+            alive.forEach(player => this.gameOver(player.id, "you win!"))
+        }
+    }
+
+    gameOver(playerID:string, message: string):void{
+        const event: wsEvent = {
+            type: WsMessageTypes.GameOver,
+            payload: {
+                message: message
+            }
+        }
+        const wsClient = clientsHashMap.get(playerID)
+        if (wsClient) broadcastMessage(event, [wsClient])
     }
 
     public get map(): gameMap {

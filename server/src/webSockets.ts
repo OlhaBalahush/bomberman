@@ -4,12 +4,12 @@ import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
-import { ChatClientMessage, GameClientIinput, PlayerCords, wsEvent } from "./models/wsMessage";
+import { ChatClientMessage, GameClientIinput, PlayerCords, EnterLobbyClientMessage, wsEvent } from "./models/wsMessage";
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 
 //storing all clients that are connected
-const clientsHashMap = new Map<string, wsPlayer>();
+export const clientsHashMap = new Map<string, wsPlayer>();
 //all active waitingrooms that have at least one player in it
 const lobbiesHashMap = new Map<string, Lobby>();
 const gamesHashMap = new Map<string, Game>();
@@ -27,8 +27,8 @@ export function initWsServer(server: http.Server) {
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
-
-        connection.on("close", () => {
+        connection.on("close", (e) => {
+            console.log("websocket close code: ", e)
             handleClientDisconnect(clientID)
         })
     })
@@ -63,6 +63,13 @@ async function handleClientMessages(message: string) {
                     //in this case the user request will be denied, I think we should not send anything back because 
                     //it just uses resources and we wont do anything in FE with that info anyways
                 }
+                break
+            }
+            case WsMessageTypes.RestartGame: {
+                const message: EnterLobbyClientMessage = messageJSON.payload
+                const player = clientsHashMap.get(message.clientID)
+                if (player) addPlayerToLobby(player)
+                break;
             }
             default: {
                 break;
@@ -160,6 +167,7 @@ function parseClientMessage(message: string): wsEvent | null {
 
 export function addPlayerToLobby(player: wsPlayer): void {
     const lobbyToJoin = findEmptyLobby();
+    console.log("LOBBY TO JOIN", lobbyToJoin)
     let tenSeconds = 10
     //create new lobby if there are none available
     if (findEmptyLobby() === null) {
@@ -207,7 +215,7 @@ function startGame(lobby: Lobby): void {
     for (const player of lobby.players) {
         newGame.addPlayer(player.id, player.username ? player.username : "");
     }
-
+    lobbiesHashMap.delete(lobby.id)
     newGame.broadcastGameStart();
 }
 

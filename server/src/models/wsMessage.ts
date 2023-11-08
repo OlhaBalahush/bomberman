@@ -11,7 +11,7 @@ export class wsEvent {
     }
 }
 
-type EnterLobbyClientMessage = {
+export type EnterLobbyClientMessage = {
     clientID: string,
     username: string,
 }

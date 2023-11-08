@@ -6,6 +6,7 @@ import { gameView } from "./views/gameView";
 
 //add your route here
 const Routes = {
+    // "/": gameView,
     "/": usernameView,
     "/waiting-room": lobbyView,
     "/error": errorView,
