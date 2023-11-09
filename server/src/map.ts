@@ -11,6 +11,7 @@
 //     9: "powerup: speed"
 //     10: "powerup: explosion length"
 //     11: "powerup: bombCount" 
+//     9: "flame"
 // }
 
 import { gamePlayer } from "./models/player";
