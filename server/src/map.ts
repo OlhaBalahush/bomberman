@@ -8,6 +8,7 @@
 //     6: "player4",
 //     7: "bomb",
 //     8: "booked" // for development purposes
+//     9: "flame"
 // }
 
 import { gamePlayer } from "./models/player";
@@ -87,5 +88,13 @@ export class gameMap {
             players[i].setPosition(x, y)
             player++
         }
+    }
+
+    getFieldID(x: number, y: number): number {
+        return this.gameMap[x][y];
+    }
+
+    setFieldID(x: number, y: number, newID: number) {
+        this.gameMap[x][y] = newID;
     }
 }

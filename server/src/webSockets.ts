@@ -4,9 +4,10 @@ import http from 'http';
 import { WsMessageTypes } from './models/constants'
 import { Lobby } from "./Lobby";
 import { Game } from "./Game";
-import { ChatClientMessage, GameClientIinput, PlayerCords, EnterLobbyClientMessage, wsEvent } from "./models/wsMessage";
+import { ChatClientMessage, GameClientIinput, PlayerCords, EnterLobbyClientMessage, wsEvent, BombPlacedClientMessage } from "./models/wsMessage";
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
+import { Bomb } from "./Bomb";
 
 //storing all clients that are connected
 export const clientsHashMap = new Map<string, wsPlayer>();
@@ -69,6 +70,21 @@ async function handleClientMessages(message: string) {
                 const message: EnterLobbyClientMessage = messageJSON.payload
                 const player = clientsHashMap.get(message.clientID)
                 if (player) addPlayerToLobby(player)
+                break;
+            }
+            case WsMessageTypes.BombPlaced: {
+                const message: BombPlacedClientMessage = messageJSON.payload;
+                const currentGame = gamesHashMap.get(message.gameID);
+                const bombOwner = currentGame?.getPlayerById(message.playerID);
+
+                if (!currentGame || !bombOwner) {
+                    break;
+                }
+
+                if (bombOwner.canPlaceBomb()) {
+                    bombOwner.increaseActiveBombs();
+                    new Bomb(bombOwner, currentGame);
+                }
                 break;
             }
             default: {

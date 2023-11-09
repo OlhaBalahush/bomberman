@@ -6,14 +6,11 @@ import { gamePlayer } from "./models/player";
 import { gameMap } from "./map";
 import { v4 as uuidv4 } from "uuid";
 
-//TODO:
 export class Game {
     private _id: string;
     private _players: gamePlayer[];
     private _chat: ChatMessage[];
     private _map: gameMap;
-    //Chat object here?
-    //TODO: game status tracker, either separate object or directly here
 
     constructor(id: string) {
         this._id = id;
@@ -47,7 +44,6 @@ export class Game {
     broadcastGameStart(): void {
         this._map.placePlayers(this._players)
         const messagePayLoad: wsEvent = {
-            //TODO: add more data, like map, initial position of players, maybe game id? maybe more info
             "type": WsMessageTypes.StartGame,
             "payload": {
                 gameID: this._id,
@@ -90,5 +86,9 @@ export class Game {
 
     public get id(): string {
         return this._id;
+    }
+
+    getPlayerById(playerID: string): gamePlayer | undefined {
+        return this._players.find((player) => player.id === playerID);
     }
 }

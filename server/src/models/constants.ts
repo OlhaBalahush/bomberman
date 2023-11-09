@@ -10,6 +10,11 @@ export enum WsMessageTypes {
     ChatMessage = "chatMessage",
     GameInput = "gameInput",
     MovePlayer = "movePlayer",
+<<<<<<< HEAD
     GameOver = "gameOver"
+=======
+    BombPlaced = "bombPlaced",
+    BombExplosion = "bombExplosion"
+>>>>>>> df05599 (bomb BE progress)
 }
 
