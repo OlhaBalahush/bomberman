@@ -21,18 +21,6 @@ export type ChatClientMessage = {
     sender: string,
 };
 
-export type GameClientIinput = {
-    gameID: string,
-    userID: string,
-    key: string,
-}
-
-export type PlayerCords = {
-    playerIndex: number,
-    previousPosition: { x: number, y: number }
-    futurePosition: { x: number, y: number }
-}
-
 type ConnectServerMessage = {
     clientID: string
 }
@@ -55,4 +43,26 @@ export type ChatMessage = {
     timestamp: Date
     message: string
     sender: string
+}
+
+export type BombPlacedServerMessage = {
+    bombLocation: Coordinates
+}
+
+export type BombExplosionServerMessage = {
+    flameLocations: BombFlames,
+    range: number
+}
+
+export type BombFlames = {
+    center: Coordinates
+    top: Coordinates[],
+    bottom: Coordinates[],
+    left: Coordinates[],
+    right: Coordinates[]
+}
+
+export type Coordinates = {
+    x: number,
+    y: number,
 }

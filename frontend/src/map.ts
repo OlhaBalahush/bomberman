@@ -36,37 +36,37 @@ export function renderMap(flatString: string) {
                     grid.element.appendChild(cell.element)
                     break;
                 case 2:
-                    cell = createDOMElement("div", { class: "w-[60px] h-[60px]", id: `cell-${x}-${y}` }, [
+                    cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
                         createDOMElement("img", { src: "https://cdn.discordapp.com/attachments/1075493710692876330/1165626018829172859/destructible-wall.png?ex=654788d3&is=653513d3&hm=a18178a7ad7cefb56d34d5cb28854fdf275651c1fb3315cb6c13287232eaf89f&", alt: "" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 3:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[0], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-0" }, [])
+                        createDOMElement("img", { src: peers[0], alt: "", class: "absolute max-h-[60px] object-scale-down z-20", id: "character-0" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 4:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[1], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-1" }, [])
+                        createDOMElement("img", { src: peers[1], alt: "", class: "absolute max-h-[60px] object-scale-down z-20", id: "character-1" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 5:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[2], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-2" }, [])
+                        createDOMElement("img", { src: peers[2], alt: "", class: "absolute max-h-[60px] object-scale-down z-20", id: "character-2" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 case 6:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: peers[3], alt: "", class: "absolute max-h-[60px] object-scale-down", id: "character-3" }, [])
+                        createDOMElement("img", { src: peers[3], alt: "", class: "absolute max-h-[60px] object-scale-down z-20", id: "character-3" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;
                 default:
-                    cell = createDOMElement("div", { class: "w-[60px] h-[60px]", id: `cell-${x}-${y}` }, [])
+                    cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [])
                     grid.element.appendChild(cell.element)
                     break;
 

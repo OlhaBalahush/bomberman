@@ -6,6 +6,7 @@ import { wsEvent } from "./models/wsMessage";
 import { WsMessageTypes } from "./models/constants";
 
 type BombFlames = {
+    center: Coordinates,
     top: Coordinates[],
     bottom: Coordinates[],
     left: Coordinates[],
@@ -21,7 +22,7 @@ export class Bomb {
     constructor(bombOwner: gamePlayer, game: Game) {
         this._game = game;
         this._range = bombOwner.explosionRange;
-        this._location = bombOwner.position;
+        this._location = { ...bombOwner.position };
         this._detonatonTimer = this.startDetonationTimer();
     }
 
@@ -39,12 +40,12 @@ export class Bomb {
             case "top":
                 return {
                     x: previousLocation.x,
-                    y: previousLocation.y + 1
+                    y: previousLocation.y - 1
                 }
             case "bottom":
                 return {
                     x: previousLocation.x,
-                    y: previousLocation.y - 1
+                    y: previousLocation.y + 1
                 }
             case "left": {
                 return {
@@ -62,6 +63,7 @@ export class Bomb {
 
     getAllFlameLocations(): BombFlames {
         return {
+            center: this._location,
             top: this.mapFlameLocationsPerDirection("top"),
             bottom: this.mapFlameLocationsPerDirection("bottom"),
             left: this.mapFlameLocationsPerDirection("left"),
@@ -73,7 +75,7 @@ export class Bomb {
         let locations: Coordinates[] = [];
         let previouslocation = this._location;
 
-        for (let level = 1; level === this._range; level++) {
+        for (let level = 0; level < this._range; level++) {
             let nextLocation = this.nextFlameLocation(direction, previouslocation);
             let fieldID = this._game.map.getFieldID(nextLocation.x, nextLocation.y);
             if (this.canFlameCoverField(fieldID)) {
@@ -85,6 +87,7 @@ export class Bomb {
             } else {
                 break;
             }
+            previouslocation = nextLocation;
         }
         return locations;
     }
@@ -122,7 +125,8 @@ export class Bomb {
 
     broadcastBombFlameLocations(flameLocations: BombFlames): void {
         let payload = {
-            flameLocations: flameLocations
+            flameLocations: flameLocations,
+            range: this._range
         }
         let messageContent = new wsEvent(WsMessageTypes.BombExplosion, payload)
         broadcastMessageToGamePlayers(messageContent, this._game.players);

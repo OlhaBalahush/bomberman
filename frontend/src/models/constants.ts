@@ -10,6 +10,8 @@ export enum WsMessageTypes {
     ChatMessage = "chatMessage",
     GameInput = "gameInput",
     PlayerCords = "movePlayer",
-    GameOver = "gameOver"
+    GameOver = "gameOver",
+    BombPlaced = "bombPlaced",
+    BombExplosion = "bombExplosion"
 }
 

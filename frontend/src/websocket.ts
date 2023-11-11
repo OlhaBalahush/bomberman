@@ -1,8 +1,9 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
-import { EnterLobbyServerMessage, TimerUpdates, PlayerCords } from "./models/wsMessage";
+import { EnterLobbyServerMessage, TimerUpdates, PlayerCords, BombPlacedServerMessage, BombExplosionServerMessage } from "./models/wsMessage";
 import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
 import { MovePlayer } from "./views/gameView";
+import { placeBombOnMap, explodeBomb } from "./bomb";
 
 export let socket: WebSocket
 
@@ -53,6 +54,14 @@ export const connectWS = () => {
                 const newCords = eventData as PlayerCords
                 MovePlayer(newCords)
                 break
+            case WsMessageTypes.BombPlaced:
+                const bombData: BombPlacedServerMessage = eventData;
+                placeBombOnMap(bombData.bombLocation);
+                break;
+            case WsMessageTypes.BombExplosion:
+                const flamesData: BombExplosionServerMessage = eventData;
+                explodeBomb(flamesData);
+                break;
             default:
                 console.log("error unknow ws connection message type: ", event.type)
         }

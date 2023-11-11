@@ -20,7 +20,7 @@ export function MovePlayer(data: PlayerCords) {
     //draw player at new position:
     const newBlockElement = document.getElementById(`cell-${data.futurePosition.x}-${data.futurePosition.y}`)
     if (newBlockElement) {
-        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "absolute max-h-[60px] object-scale-down", id: `character-${data.playerIndex}` }, [])
+        const playerElement = createDOMElement("img", { src: peers[data.playerIndex], alt: "", class: "absolute max-h-[60px] object-scale-down z-20", id: `character-${data.playerIndex}` }, [])
         newBlockElement.appendChild(playerElement.element)
     } else {
         console.log("error in adding new player to pos")
@@ -84,9 +84,11 @@ export const gameView = () => {
             "s": "s",
             "d": "d",
             "w": "w",
+            //spacebar
+            " ": "spacebar"
         }
 
-        let key;
+        let key: string;
 
         if (validMoves[event.key]) {
             key = event.key
@@ -95,8 +97,8 @@ export const gameView = () => {
             return
         }
 
-        const gameId = sessionStorage.getItem("gameID")
-        if (!gameId) {
+        const gameID = sessionStorage.getItem("gameID")
+        if (!gameID) {
             console.log("no game ID available")
             return
         }
@@ -107,8 +109,17 @@ export const gameView = () => {
             return
         }
 
+        if (key == " ") {
+            console.log("spacebar was clicked")
+            sendEvent(WsMessageTypes.BombPlaced, {
+                gameID: gameID,
+                playerID: playerID
+            })
+            return;
+        }
+
         const payload: GameClientIinput = {
-            gameID: gameId,
+            gameID: gameID,
             userID: playerID,
             key: key,
         }

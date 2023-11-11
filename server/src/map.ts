@@ -91,10 +91,10 @@ export class gameMap {
     }
 
     getFieldID(x: number, y: number): number {
-        return this.gameMap[x][y];
+        return this.gameMap[y][x];
     }
 
     setFieldID(x: number, y: number, newID: number) {
-        this.gameMap[x][y] = newID;
+        this.gameMap[y][x] = newID;
     }
 }
