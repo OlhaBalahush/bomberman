@@ -12,6 +12,10 @@ export enum WsMessageTypes {
     PlayerCords = "movePlayer",
     GameOver = "gameOver",
     BombPlaced = "bombPlaced",
-    BombExplosion = "bombExplosion"
+    PlaceFlames = "placeFlames",
+    RemoveFlames = "removeFlames",
+    ReplaceBlock = "replaceBlock",
+    PlayerDamage = "playerDamage",
+    ImmunityEnd = "immunityEnd",
 }
 

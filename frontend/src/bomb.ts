@@ -1,5 +1,5 @@
 import { createDOMElement } from "mini-framework";
-import { Coordinates, BombExplosionServerMessage } from "./models/wsMessage";
+import { Coordinates, BombExplosionServerMessage, ReplaceBlockServerMessage, PlayerDamageServerMessage, ImmunityEnd } from "./models/wsMessage";
 import bombImage from '../assets/images/bomb.png'
 import flameTop from '../assets/images/explosion-top.png'
 import flameBottom from '../assets/images/explosion-bottom.png'
@@ -19,39 +19,34 @@ export function placeBombOnMap(bombLocation: Coordinates) {
     mapCellToPlaceBombOn.appendChild(bombElement.element)
 }
 
+export function placeFlames(flameData: BombExplosionServerMessage) {
 
-export function explodeBomb(flameData: BombExplosionServerMessage) {
+    placeFlame(flameData.flameLocations.center, flameCenter)
+    removeChildFromCellByClassName(flameData.flameLocations.center, 'bomb')
+    placeFlame(flameData.flameLocations.top, flameTop)
+    placeFlame(flameData.flameLocations.bottom, flameBottom)
+    placeFlame(flameData.flameLocations.left, flameLeft)
+    placeFlame(flameData.flameLocations.right, flameRight)
+}
 
-    const centerFlameElement = createDOMElement("img", { src: flameCenter, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, [])
+export function removeFlames(flameData: BombExplosionServerMessage) {
+    removeChildFromCellByClassName(flameData.flameLocations.center, 'flame')
+    removeChildFromCellByClassName(flameData.flameLocations.top, 'flame')
+    removeChildFromCellByClassName(flameData.flameLocations.bottom, 'flame')
+    removeChildFromCellByClassName(flameData.flameLocations.left, 'flame')
+    removeChildFromCellByClassName(flameData.flameLocations.right, 'flame')
+}
 
-    const centerCell = getMapCellByCoordinates(flameData.flameLocations.center);
-    centerCell!.appendChild(centerFlameElement.element)
-
-    for (let i = 0; i < flameData.range; i++) {
-        const topCell = getMapCellByCoordinates(flameData.flameLocations.top[i])
-        if (topCell) {
-            const topFlameElement = createDOMElement("img", { src: flameTop, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, [])
-            topCell.appendChild(topFlameElement.element)
-        }
-
-        const bottomCell = getMapCellByCoordinates(flameData.flameLocations.bottom[i])
-        if (bottomCell) {
-            const bottomFlameElement = createDOMElement("img", { src: flameBottom, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, [])
-            bottomCell.appendChild(bottomFlameElement.element)
-        }
-
-        const leftCell = getMapCellByCoordinates(flameData.flameLocations.left[i])
-        if (leftCell) {
-            const leftFlameElement = createDOMElement("img", { src: flameLeft, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, [])
-            leftCell.appendChild(leftFlameElement.element)
-        }
-
-        const rightCell = getMapCellByCoordinates(flameData.flameLocations.right[i])
-        if (rightCell) {
-            const rightFlameElement = createDOMElement("img", { src: flameRight, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, [])
-            rightCell.appendChild(rightFlameElement.element)
-        }
+function placeFlame(coordinates: Coordinates, flameImageSrc: string) {
+    const cell = getMapCellByCoordinates(coordinates);
+    if (cell) {
+        const flameElement = createFlameElement(flameImageSrc);
+        cell.appendChild(flameElement);
     }
+}
+
+function createFlameElement(imageSrc: string): HTMLElement {
+    return createDOMElement("img", { src: imageSrc, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, []).element
 }
 
 function getMapCellByCoordinates(coordinates: Coordinates): HTMLElement | null {
@@ -60,4 +55,50 @@ function getMapCellByCoordinates(coordinates: Coordinates): HTMLElement | null {
     }
 
     return document.getElementById(`cell-${coordinates.x}-${coordinates.y}`);
+}
+
+function removeChildFromCellByClassName(cellCoordinates: Coordinates, className: string): void {
+    const cell = getMapCellByCoordinates(cellCoordinates);
+    if (cell) {
+        const childToRemove = Array.from(cell.children).find(child =>
+            child.classList.contains(className)
+        );
+
+        if (childToRemove) {
+            cell.removeChild(childToRemove);
+        }
+    }
+}
+
+export function replaceCellOnMap(newCellData: ReplaceBlockServerMessage) {
+    switch (newCellData.newCellID) {
+        case 0:
+            removeChildFromCellByClassName(newCellData.coordinates, "destructible")
+            break;
+        //TODO: add powerup ID handling here, removing destructible block can be moved out of switch case, and 0 case can be the default
+        default:
+            break;
+
+    }
+}
+
+export function handlePlayerLifeLost(damagedPlayerData: PlayerDamageServerMessage) {
+    const damagedPlayerElement = document.getElementById(`character-${damagedPlayerData.playerIndex}`)
+
+    //making player blink until immunity timer is active
+    if (damagedPlayerElement) {
+        damagedPlayerElement.classList.add("damaged-player")
+    }
+
+    if (sessionStorage.getItem("clientID") === damagedPlayerData.playerID) {
+        //TODO: check how to use the state management thing, update lives left for user that lost life
+        //also remove player from game when dead, and merge with end game code
+    }
+}
+
+export function disableImmunityAnimation(immunityPlayer: ImmunityEnd) {
+    const immunePlayerElement = document.getElementById(`character-${immunityPlayer.playerIndex}`)
+    if (immunePlayerElement) {
+        immunePlayerElement.classList.remove("damaged-player")
+    }
 }

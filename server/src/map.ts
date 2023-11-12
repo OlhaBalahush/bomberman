@@ -8,10 +8,10 @@
 //     6: "player4",
 //     7: "bomb",
 //     8: "booked" // for development purposes
-//     9: "flame"
 // }
 
 import { gamePlayer } from "./models/player";
+import { Coordinates } from "./models/helpers";
 
 
 export class gameMap {
@@ -24,12 +24,14 @@ export class gameMap {
         [1, 11], [1, 10], [2, 11],
         [13, 11], [12, 11], [13, 10],
     ];
+    _activeFlames: Coordinates[];
 
     constructor() {
         this.initMap();
         this.bookCorners();
         this.placeIndestructibleBlocks(50);
         this.freeCorners();
+        this._activeFlames = [];
     }
 
     private initMap() {
@@ -96,5 +98,34 @@ export class gameMap {
 
     setFieldID(x: number, y: number, newID: number) {
         this.gameMap[y][x] = newID;
+    }
+
+    public isActiveFlameOnCell(coordinates: Coordinates): boolean {
+        return this._activeFlames.some(activeFlame =>
+            activeFlame.x === coordinates.x && activeFlame.y === coordinates.y
+        );
+    }
+
+    public addActiveFlames(newflameCoordinates: Coordinates[]) {
+        this._activeFlames = [...this._activeFlames, ...newflameCoordinates]
+    }
+
+    public removeActiveFlames(flameToRemove: Coordinates): boolean {
+        if (!flameToRemove) {
+            return false;
+        }
+
+        const indexToRemove = this._activeFlames.findIndex(activeFlame =>
+            flameToRemove.x === activeFlame.x && flameToRemove.y === activeFlame.y
+        );
+
+        if (indexToRemove !== -1) {
+            // Remove the element at the found index
+            this._activeFlames.splice(indexToRemove, 1);
+            return true;
+        }
+
+        //means no active flames found at this coordinates, so nothing was removed
+        return false;
     }
 }

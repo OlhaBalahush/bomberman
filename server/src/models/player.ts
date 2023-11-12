@@ -1,3 +1,8 @@
+import { Game } from "../Game"
+import { wsEvent } from "../models/wsMessage";
+import { WsMessageTypes } from "../models/constants";
+import { broadcastMessageToGamePlayers } from "../webSockets";
+
 export class gamePlayer {
     private _id: string
     private _username: string
@@ -90,19 +95,35 @@ export class gamePlayer {
         }
     }
 
-    startImmunityTimer(): NodeJS.Timeout {
+    decreaseActiveBombs() {
+        if (this._activeBombsPlaced > 0) {
+            this._activeBombsPlaced -= 1;
+        }
+    }
+
+    startImmunityTimer(game: Game, playerIndex: number): NodeJS.Timeout {
         return setInterval(() => {
             clearInterval(this._immunityTimer!);
             this._immunityTimer = null;
-            //send message of immunity time end, if will use some damage animation
+            //sending message of immunity time end
+            //TODO: recheck this if player objects will be merged, probably save palyer index as property and check which object is best for broadcasting this
+            const payload = {
+                playerIndex: playerIndex,
+            }
+            const messageContent = new wsEvent(WsMessageTypes.ImmunityEnd, payload)
+            broadcastMessageToGamePlayers(messageContent, game.players)
+
         }, 2000);
     }
 
-    loseLife(): void {
-        if (this.lives < 0 && !this._immunityTimer) {
+    loseLife(game: Game, playerIndex: number): boolean {
+        if (this.lives > 0 && !this._immunityTimer) {
             this.lives -= 1;
             //send message of life lost
-            this.startImmunityTimer();
+            this._immunityTimer = this.startImmunityTimer(game, playerIndex);
+            return true
         }
+        //no life deducted
+        return false
     }
 }

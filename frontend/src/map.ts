@@ -37,7 +37,7 @@ export function renderMap(flatString: string) {
                     break;
                 case 2:
                     cell = createDOMElement("div", { class: "w-[60px] h-[60px] flex items-center justify-center", id: `cell-${x}-${y}` }, [
-                        createDOMElement("img", { src: "https://cdn.discordapp.com/attachments/1075493710692876330/1165626018829172859/destructible-wall.png?ex=654788d3&is=653513d3&hm=a18178a7ad7cefb56d34d5cb28854fdf275651c1fb3315cb6c13287232eaf89f&", alt: "" }, [])
+                        createDOMElement("img", { class: "destructible", src: "https://cdn.discordapp.com/attachments/1075493710692876330/1165626018829172859/destructible-wall.png?ex=654788d3&is=653513d3&hm=a18178a7ad7cefb56d34d5cb28854fdf275651c1fb3315cb6c13287232eaf89f&", alt: "" }, [])
                     ])
                     grid.element.appendChild(cell.element)
                     break;

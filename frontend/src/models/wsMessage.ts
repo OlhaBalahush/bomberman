@@ -50,19 +50,34 @@ export type BombPlacedServerMessage = {
 }
 
 export type BombExplosionServerMessage = {
-    flameLocations: BombFlames,
-    range: number
+    flameLocations: BombFlames
 }
 
 export type BombFlames = {
     center: Coordinates
-    top: Coordinates[],
-    bottom: Coordinates[],
-    left: Coordinates[],
-    right: Coordinates[]
+    top: Coordinates,
+    bottom: Coordinates,
+    left: Coordinates,
+    right: Coordinates
 }
 
 export type Coordinates = {
     x: number,
     y: number,
+}
+
+export type ReplaceBlockServerMessage = {
+    coordinates: Coordinates,
+    newCellID: number
+}
+
+export type PlayerDamageServerMessage = {
+    playerID: string,
+    username: string,
+    playerIndex: number,
+    livesRemaining: number
+}
+
+export type ImmunityEnd = {
+    playerIndex: number,
 }

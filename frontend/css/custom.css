@@ -7,7 +7,25 @@
     animation: pulse 1.3s linear infinite;
 }
 
-@-webkit-keyframes pulse {
+.damaged-player {
+    animation: blink 0.5s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
     0% {
         transform: scale(1);
     }
