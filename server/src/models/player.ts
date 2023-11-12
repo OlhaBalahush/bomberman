@@ -138,5 +138,7 @@ export class gamePlayer {
 
             this._immunityTimer = this.startImmunityTimer(game, playerIndex);
         }
+        //no life deducted
+        return false
     }
 }
