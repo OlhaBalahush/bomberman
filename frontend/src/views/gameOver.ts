@@ -29,7 +29,7 @@ export const gameOver = () => {
 
     return createDOMElement("div", {
         id: "gameOverContainer",
-        class: "hidden w-[600px] h-[300px] bg-neutral-200 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] border-2 border-solid border-black flex flex-col gap-5 items-center justify-center"
+        class: "hidden w-[600px] h-[300px] bg-neutral-200 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] border-2 border-solid border-black flex flex-col gap-5 items-center justify-center z-50"
     }, [
         createDOMElement("h1", {
             id: "gameOverText",

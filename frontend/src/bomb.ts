@@ -46,7 +46,7 @@ function placeFlame(coordinates: Coordinates, flameImageSrc: string) {
 }
 
 function createFlameElement(imageSrc: string): HTMLElement {
-    return createDOMElement("img", { src: imageSrc, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-50 flame" }, []).element
+    return createDOMElement("img", { src: imageSrc, alt: "flame", class: "absolute max-h-[60px] object-scale-down z-30 flame" }, []).element
 }
 
 function getMapCellByCoordinates(coordinates: Coordinates): HTMLElement | null {

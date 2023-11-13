@@ -106,7 +106,6 @@ export class gamePlayer {
             clearInterval(this._immunityTimer!);
             this._immunityTimer = null;
             //sending message of immunity time end
-            //TODO: recheck this if player objects will be merged, probably save palyer index as property and check which object is best for broadcasting this
             const payload = {
                 playerIndex: playerIndex,
             }
@@ -119,6 +118,10 @@ export class gamePlayer {
     loseLife(game: Game, playerIndex: number) {
         if (this.lives > 0 && !this._immunityTimer) {
             this.lives -= 1;
+
+            if (this.lives === 0) {
+                game.checkGameOver();
+            }
 
             const payload = {
                 playerID: this._id,

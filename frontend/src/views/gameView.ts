@@ -114,7 +114,6 @@ export const gameView = () => {
         }
 
         if (key == " ") {
-            console.log("spacebar was clicked")
             sendEvent(WsMessageTypes.BombPlaced, {
                 gameID: gameID,
                 playerID: playerID
