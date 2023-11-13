@@ -1,6 +1,9 @@
 import { createDOMElement } from "mini-framework";
 import { Coordinates, BombExplosionServerMessage, ReplaceBlockServerMessage, PlayerDamageServerMessage, ImmunityEnd } from "./models/wsMessage";
 import bombImage from '../assets/images/bomb.png'
+import powerBombImage from '../assets/images/power-bomb.png'
+import powerFlameImage from '../assets/images/power-flame.png'
+import powerSpeedImage from '../assets/images/power-speed.png'
 import flameTop from '../assets/images/explosion-top.png'
 import flameBottom from '../assets/images/explosion-bottom.png'
 import flameLeft from '../assets/images/explosion-left.png'
@@ -70,11 +73,34 @@ function removeChildFromCellByClassName(cellCoordinates: Coordinates, className:
     }
 }
 
+function addPowerupToCellByCoordinates(coordinates: Coordinates, powerup: number) {
+    const powerUpSpawnCell = getMapCellByCoordinates(coordinates)
+
+    interface PowerupDictionary {
+        [key: number]: string;
+    }
+
+    const dictOfPowerups: PowerupDictionary = {
+        9: powerSpeedImage,
+        10: powerFlameImage,
+        11: powerBombImage,
+    }
+    const powerImg = createDOMElement("img", { src: dictOfPowerups[powerup], alt: "powerup IMG" }, [])
+    powerUpSpawnCell?.appendChild(powerImg.element);
+}
+
 export function replaceCellOnMap(newCellData: ReplaceBlockServerMessage) {
+    removeChildFromCellByClassName(newCellData.coordinates, "destructible") // this line removes the block from playing field, meaning It should run no matter the value
     switch (newCellData.newCellID) {
-        case 0:
-            removeChildFromCellByClassName(newCellData.coordinates, "destructible")
+        case 9:
+        //speed
+        case 10:
+        //bombExplosionrange
+        case 11:
+            //bombCount
+            addPowerupToCellByCoordinates(newCellData.coordinates, newCellData.newCellID)
             break;
+        //oh okay, got it, using this I will recieve the number that will show what will be used instead of the previous block location
         //TODO: add powerup ID handling here, removing destructible block can be moved out of switch case, and 0 case can be the default
         default:
             break;

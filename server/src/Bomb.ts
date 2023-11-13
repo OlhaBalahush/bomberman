@@ -16,6 +16,12 @@ type FlameLocations = {
 
 const FLAME_DELAY = 60;
 
+function getRandomPowerupInt(): number {
+    const values = [9, 10, 11];
+    const randomIndex = Math.floor(Math.random() * values.length);
+    return values[randomIndex];
+}
+
 export class Bomb {
     private _game: Game;
     private _detonatonTimer: NodeJS.Timeout | null;
@@ -194,12 +200,18 @@ export class Bomb {
         await this.removeFlamesWithDelay(flameLocations);
     }
 
+
+
     checkAndRemoveBlock(location: Coordinates) {
         // Remove removable block if it was under the flame
         const fieldID = this._game.map.getFieldID(location.x, location.y);
         if (fieldID === 2) {
             //replace here with some randvalue generator that would sometimes add powerup instead of just free cell
-            const newCellValue = 0;
+            let newCellValue = 0;
+            if (Math.random() < 0.5) {
+                //50 precent change of a powerup
+                newCellValue = getRandomPowerupInt()
+            }
             this._game.map.setFieldID(location.x, location.y, newCellValue)
 
             const payload = {
@@ -210,6 +222,8 @@ export class Bomb {
             broadcastMessageToGamePlayers(messageContent, this._game.players)
         }
     }
+
+
 
     checkHitPlayersAndReduceLife(location: Coordinates) {
         const playersInFlames = this._game.players.filter(player => player.position.x === location.x && player.position.y === location.y)

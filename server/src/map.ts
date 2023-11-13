@@ -8,6 +8,9 @@
 //     6: "player4",
 //     7: "bomb",
 //     8: "booked" // for development purposes
+//     9: "powerup: speed"
+//     10: "powerup: explosion length"
+//     11: "powerup: bombCount" 
 // }
 
 import { gamePlayer } from "./models/player";

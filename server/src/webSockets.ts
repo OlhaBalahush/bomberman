@@ -118,8 +118,8 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         return
     }
 
-    //these are numbers of either free spots (0) or other players (3,4,5,6) that the user can walk into:
-    const validNumbers = [0, 3, 4, 5, 6]
+    //these are numbers of either free spots (0), other players (3,4,5,6) or powerups (9,10,11) that the user can walk into:
+    const validNumbers = [0, 3, 4, 5, 6, 9, 10, 11]
     //validate the move:
     let validMove = false
     let newCords;
