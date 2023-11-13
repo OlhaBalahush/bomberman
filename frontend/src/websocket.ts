@@ -45,10 +45,10 @@ export const connectWS = () => {
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:
-                document.dispatchEvent(new CustomEvent("newMessage", {detail:eventData}))
+                document.dispatchEvent(new CustomEvent("newMessage", { detail: eventData }))
                 break
             case WsMessageTypes.GameOver:
-                document.dispatchEvent(new CustomEvent(WsMessageTypes.GameOver, {detail:eventData}))
+                document.dispatchEvent(new CustomEvent(WsMessageTypes.GameOver, { detail: eventData }))
                 break
             case WsMessageTypes.PlayerCords:
                 const newCords = eventData as PlayerCords
@@ -67,7 +67,9 @@ export const connectWS = () => {
                 removeFlames(flames);
                 break;
             case WsMessageTypes.ReplaceBlock:
+                console.log("entered ReplaceBlock case")
                 const mapUpdateData: ReplaceBlockServerMessage = eventData;
+                console.log("data that I got:" + mapUpdateData.coordinates, + mapUpdateData.newCellID)
                 replaceCellOnMap(mapUpdateData);
                 break;
             case WsMessageTypes.PlayerDamage:

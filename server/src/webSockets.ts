@@ -35,6 +35,7 @@ export function initWsServer(server: http.Server) {
     })
 }
 
+
 async function handleClientMessages(message: string) {
     const messageJSON = parseClientMessage(message);
     if (messageJSON) {
@@ -97,6 +98,8 @@ async function handleClientMessages(message: string) {
     }
 }
 
+
+
 function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): PlayerCords | undefined {
     if (!currentGame) {
         console.log("no game found, something went wrong");
@@ -149,6 +152,8 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     }
 
     //if valid, change the map object and player objects position properties to new ones and return payload
+    const cellValue = CURRENTMAP[newCords.y][newCords.x]
+
     if (validMove) {
         const previousField = currentGame.map.getFieldID(playersPOS.x, playersPOS.y)
 
@@ -171,8 +176,22 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             currentGame.players[playerindex].loseLife(currentGame, playerindex);
         }
 
-        //check for powerups in the new cords:
 
+        console.log("this is the upcoming cell value: ")
+        //check for powerups in the new cords:
+        if (cellValue === 9 || cellValue === 10 || cellValue === 11) {
+            //prodcast a remove class obejct to all players
+            //I need to check the map for powerups in the location
+            const replaecBlockPayload = {
+                coordinates: { x: newCords.x, y: newCords.y },
+                newCellID: 0,
+            }
+            console.log("sending remove thing to FE")
+            //send the prodcast to remove the value from FE
+            const messageContent = new wsEvent(WsMessageTypes.ReplaceBlock, replaecBlockPayload)
+            broadcastMessageToGamePlayers(messageContent, currentGame.players)
+
+        }
 
         return payload;
     } else {

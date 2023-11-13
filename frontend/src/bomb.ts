@@ -54,6 +54,7 @@ function createFlameElement(imageSrc: string): HTMLElement {
 
 function getMapCellByCoordinates(coordinates: Coordinates): HTMLElement | null {
     if (!coordinates) {
+        console.log("error: Coordinates")
         return null;
     }
 
@@ -89,24 +90,40 @@ function addPowerupToCellByCoordinates(coordinates: Coordinates, powerup: number
     powerUpSpawnCell?.appendChild(powerImg.element);
 }
 
-export function replaceCellOnMap(newCellData: ReplaceBlockServerMessage) {
-    removeChildFromCellByClassName(newCellData.coordinates, "destructible") // this line removes the block from playing field, meaning It should run no matter the value
-    switch (newCellData.newCellID) {
-        case 9:
-        //speed
-        case 10:
-        //bombExplosionrange
-        case 11:
-            //bombCount
-            addPowerupToCellByCoordinates(newCellData.coordinates, newCellData.newCellID)
-            break;
-        //oh okay, got it, using this I will recieve the number that will show what will be used instead of the previous block location
-        //TODO: add powerup ID handling here, removing destructible block can be moved out of switch case, and 0 case can be the default
-        default:
-            break;
-
+function removeAllChildrenFromElement(element: HTMLElement | null) {
+    if (!element) {
+        console.log("no element found, error")
+        return
     }
+    element.innerHTML = ""
 }
+
+export function replaceCellOnMap(newCellData: ReplaceBlockServerMessage) {
+    // console.log("why can I not see this clg")
+    // console.log("newdata.newcellID = " + newCellData.newCellID)
+    // // removeChildFromCellByClassName(newCellData.coordinates, "destructible") // this line removes the block from playing field, meaning It should run no matter the value
+    // switch (newCellData.newCellID) {
+    //     case 0:
+    //         console.log("I should be removing all kids rn")
+    //         // I think this should remove every child from the cell in order to place a new one:
+    //         // note that I am intentionally not adding a break here
+    //         removeAllChildrenFromElement(getMapCellByCoordinates(newCellData.coordinates))
+    //         break;
+    //     case 9:
+    //     //speed            addPowerupToCellByCoordinates(newCellData.coordinates, newCellData.newCellID)
+    //     case 10:
+    //     //bombExplosionrange
+    //     case 11:
+    //         //bombCount
+    //         // addPowerupToCellByCoordinates(newCellData.coordinates, newCellData.newCellID)
+    //         break;
+    //     //oh okay, got it, using this I will recieve the number that will show what will be used instead of the previous block location
+    //     //TODO: add powerup ID handling here, removing destructible block can be moved out of switch case, and 0 case can be the default
+    //     default:
+    //         break;
+    // }
+}
+
 
 export function handlePlayerLifeLost(damagedPlayerData: PlayerDamageServerMessage) {
     const damagedPlayerElement = document.getElementById(`character-${damagedPlayerData.playerIndex}`)
