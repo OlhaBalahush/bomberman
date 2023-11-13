@@ -219,22 +219,8 @@ export class Bomb {
         const playersInFlames = this._game.players.filter(player => player.position.x === location.x && player.position.y === location.y)
         playersInFlames.forEach(player => {
             const playerIndex = this._game.players.indexOf(player)
-            const isLifeLost = player.loseLife(this._game, playerIndex);
-
-            if (isLifeLost) {
-                const payload = {
-                    playerID: player.id,
-                    username: player.username,
-                    playerIndex: playerIndex,
-                    livesRemaining: player.lives
-                }
-
-                const messageContent = new wsEvent(WsMessageTypes.PlayerDamage, payload)
-                broadcastMessageToGamePlayers(messageContent, this._game.players)
-            }
+            player.loseLife(this._game, playerIndex);
         })
     }
 
 }
-
-//check if any players in the flames, also if player moves to flames while flame is active - this should be covered in player movement

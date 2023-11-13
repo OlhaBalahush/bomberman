@@ -116,14 +116,21 @@ export class gamePlayer {
         }, 2000);
     }
 
-    loseLife(game: Game, playerIndex: number): boolean {
+    loseLife(game: Game, playerIndex: number) {
         if (this.lives > 0 && !this._immunityTimer) {
             this.lives -= 1;
-            //send message of life lost
+
+            const payload = {
+                playerID: this._id,
+                username: this._username,
+                playerIndex: playerIndex,
+                livesRemaining: this._lives
+            }
+
+            const messageContent = new wsEvent(WsMessageTypes.PlayerDamage, payload)
+            broadcastMessageToGamePlayers(messageContent, game.players)
+
             this._immunityTimer = this.startImmunityTimer(game, playerIndex);
-            return true
         }
-        //no life deducted
-        return false
     }
 }

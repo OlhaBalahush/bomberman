@@ -17,7 +17,6 @@ export class Game {
         this._players = [];
         this._chat = [];
         this._map = new gameMap();
-        console.log("new game created");
     }
 
     addPlayer(id: string, username: string): void {

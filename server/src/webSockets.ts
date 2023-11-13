@@ -8,6 +8,7 @@ import { ChatClientMessage, GameClientIinput, PlayerCords, EnterLobbyClientMessa
 import { wsPlayer } from "./Player";
 import { gamePlayer } from "./models/player";
 import { Bomb } from "./Bomb";
+import { Coordinates } from "./models/helpers";
 
 //storing all clients that are connected
 export const clientsHashMap = new Map<string, wsPlayer>();
@@ -24,7 +25,6 @@ export function initWsServer(server: http.Server) {
         const newPlayer = new wsPlayer(clientID, connection);
         clientsHashMap.set(clientID, newPlayer);
         addPlayerToLobby(newPlayer);
-        console.log(`WS: new client connected, id: ${clientID}`);
         //all messages must be in JSON format
         connection.on("message", (message: string) => handleClientMessages(message))
         //TODO: handle possible disconnection in all steps of player journey 
@@ -115,7 +115,6 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         console.log("no player pos found, this is a problem")
         return
     }
-    console.log("this is the current players position: ", playersPOS)
 
     //these are numbers of either free spots (0) or other players (3,4,5,6) that the user can walk into:
     const validNumbers = [0, 3, 4, 5, 6]
@@ -159,6 +158,11 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         }
 
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
+
+        if (currentGame.map.isActiveFlameOnCell(newCords)) {
+            currentGame.players[playerindex].loseLife(currentGame, playerindex);
+        }
+
         return payload;
     } else {
         return
@@ -173,7 +177,6 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
 function parseClientMessage(message: string): wsEvent | null {
     try {
         const messageJSON: wsEvent = JSON.parse(message);
-        console.log("WS message from client: " + message);
         return messageJSON;
     } catch (error) {
         console.error("Unable to parse message, check the format:", error);
