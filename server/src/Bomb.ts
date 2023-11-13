@@ -101,6 +101,9 @@ export class Bomb {
     }
 
     broadcastBombPlaced(): void {
+        //adding bomb on map so user will not be able to walk through bomb
+        this._game.map.setFieldID(this._location.x, this._location.y, 7)
+
         let payload = {
             bombLocation: this._location
         }
@@ -116,6 +119,9 @@ export class Bomb {
         // Add center flame
         this._game.map.addActiveFlames([locations.center]);
         await this.broadcastAndDelay(WsMessageTypes.PlaceFlames, { flameLocations: { center: locations.center } });
+
+        //removing bomb from map so user can walk there again
+        this._game.map.setFieldID(this._location.x, this._location.y, 0)
         this.checkHitPlayersAndReduceLife(locations.center)
 
         // All the rest of the flames per range

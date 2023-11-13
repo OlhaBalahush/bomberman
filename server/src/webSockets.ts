@@ -100,7 +100,6 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         return
     }
 
-    const CURRENTMAP = currentGame.map.gameMap
     let playerindex = 0
 
     //finding the user that sent the request
@@ -124,22 +123,22 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     switch (message.key) {
         case "w":
             //up
-            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y - 1][playersPOS.x]))
+            validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y - 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
             break;
         case "s":
             //down
-            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y + 1][playersPOS.x]))
+            validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y + 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
             break;
         case "a":
             //left
-            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x - 1]))
+            validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x - 1, playersPOS.y)))
             newCords = { x: playersPOS.x - 1, y: playersPOS.y }
             break;
         case "d":
             //right
-            validMove = validNumbers.includes((CURRENTMAP[playersPOS.y][playersPOS.x + 1]))
+            validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x + 1, playersPOS.y)))
             newCords = { x: playersPOS.x + 1, y: playersPOS.y }
             break;
         default:
@@ -148,8 +147,14 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
 
     //if valid, change the map object and player objects position properties to new ones and return payload
     if (validMove) {
-        currentGame.map.gameMap[playersPOS.y][playersPOS.x] = 0
-        currentGame.map.gameMap[newCords.y][newCords.x] = playerindex + 3 // index + 3 because of the way we have the players set up on the map, look at table below
+        const previousField = currentGame.map.getFieldID(playersPOS.x, playersPOS.y)
+
+        //if bomb was in the previous position, don't change it to 0, keep it 7
+        if (previousField !== 7) {
+            currentGame.map.setFieldID(playersPOS.x, playersPOS.y, 0);
+        }
+
+        currentGame.map.setFieldID(newCords.x, newCords.y, playerindex + 3); // index + 3 because of the way we have the players set up on the map, look at table below
 
         const payload: PlayerCords = {
             playerIndex: playerindex,
