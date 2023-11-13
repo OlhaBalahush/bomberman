@@ -31,6 +31,61 @@ export function MovePlayer(data: PlayerCords) {
     }
 }
 
+const HanldeKeyDown = (event: any) => {
+    //check if user in focused into the game and not into the chat:
+    const chatInput = document.getElementById("chat-input")
+
+    if (document.activeElement === chatInput) {
+        return
+    }
+
+    const validMoves: Record<string, string> = {
+        "a": "a",
+        "s": "s",
+        "d": "d",
+        "w": "w",
+        //spacebar
+        " ": "spacebar"
+    }
+
+    let key: string;
+
+    if (validMoves[event.key]) {
+        key = event.key
+    } else {
+        // console.log("no correct key pressed")
+        return
+    }
+
+    const gameID = sessionStorage.getItem("gameID")
+    if (!gameID) {
+        console.log("no game ID available")
+        return
+    }
+
+    const playerID = sessionStorage.getItem("clientID")
+    if (!playerID) {
+        console.log("no player ID available")
+        return
+    }
+
+    if (key == " ") {
+        sendEvent(WsMessageTypes.BombPlaced, {
+            gameID: gameID,
+            playerID: playerID
+        })
+        return;
+    }
+
+    const payload: GameClientIinput = {
+        gameID: gameID,
+        userID: playerID,
+        key: key,
+    }
+
+    sendEvent(WsMessageTypes.GameInput, payload)
+}
+
 export const gameView = () => {
     let gameTime = useStateManager("240") //TODO connect with be
     let PlayerHealth = useStateManager("3")//TODO connect with be
@@ -74,61 +129,8 @@ export const gameView = () => {
     }) as EventListener)
 
     const map = renderMap(flatmap)
-
-    document.addEventListener('keydown', (event) => {
-        //check if user in focused into the game and not into the chat:
-        const chatInput = document.getElementById("chat-input")
-
-        if (document.activeElement === chatInput) {
-            return
-        }
-
-        const validMoves: Record<string, string> = {
-            "a": "a",
-            "s": "s",
-            "d": "d",
-            "w": "w",
-            //spacebar
-            " ": "spacebar"
-        }
-
-        let key: string;
-
-        if (validMoves[event.key]) {
-            key = event.key
-        } else {
-            // console.log("no correct key pressed")
-            return
-        }
-
-        const gameID = sessionStorage.getItem("gameID")
-        if (!gameID) {
-            console.log("no game ID available")
-            return
-        }
-
-        const playerID = sessionStorage.getItem("clientID")
-        if (!playerID) {
-            console.log("no player ID available")
-            return
-        }
-
-        if (key == " ") {
-            sendEvent(WsMessageTypes.BombPlaced, {
-                gameID: gameID,
-                playerID: playerID
-            })
-            return;
-        }
-
-        const payload: GameClientIinput = {
-            gameID: gameID,
-            userID: playerID,
-            key: key,
-        }
-
-        sendEvent(WsMessageTypes.GameInput, payload)
-    });
+    document.removeEventListener("keydown", HanldeKeyDown)
+    document.addEventListener("keydown", HanldeKeyDown);
 
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [

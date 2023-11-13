@@ -190,7 +190,18 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             //send the prodcast to remove the value from FE
             const messageContent = new wsEvent(WsMessageTypes.ReplaceBlock, replaecBlockPayload)
             broadcastMessageToGamePlayers(messageContent, currentGame.players)
-
+            //also change the bsae value for the current player
+            switch (cellValue) {
+                case 9:
+                    currentGame.players[playerindex].addSpeed(1)
+                    break;
+                case 10:
+                    currentGame.players[playerindex].addExplosionRange(1)
+                    break;
+                case 11:
+                    currentGame.players[playerindex].addMaxBombCount(1)
+                    break;
+            }
         }
 
         return payload;

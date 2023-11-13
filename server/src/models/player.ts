@@ -22,7 +22,7 @@ export class gamePlayer {
         this._lives = 3
         this._powerups = {
             maxBombCount: 1,
-            explosionRange: 3,
+            explosionRange: 2,
             speed: 1
         }
         // TODO adjust to have different position for different players
