@@ -12,8 +12,8 @@ export const usernameView = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (username.getState() === "") return
         sessionStorage.setItem("username", username.getState())
-        navigateTo("/waiting-room")
         connectWS()
     }
 

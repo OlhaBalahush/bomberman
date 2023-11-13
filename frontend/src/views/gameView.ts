@@ -5,6 +5,8 @@ import { ChatMessage, PlayerCords, GameClientIinput } from "../models/wsMessage"
 import { WsMessageTypes } from "../models/constants";
 import { renderMap } from "../map";
 import { peers } from "../map"
+import { gameOver } from "./gameOver";
+
 
 export function MovePlayer(data: PlayerCords) {
     //delete player from previous location:
@@ -116,6 +118,7 @@ export const gameView = () => {
 
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
+        gameOver(),
         createDOMElement("div", { class: "border-1 border-black flex flex-col", id: "gameBox" }, [
             createDOMElement("div", { class: "h-[57px] bg-neutral-200 border-2 border-black p-2 flex items-center" }, [
                 createDOMElement("div", { class: "pr-4 font-inter text-2xl font-normal text-black uppercase flex-none" }, ["TIME: " + gameTime.getState()]),
