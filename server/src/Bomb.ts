@@ -86,7 +86,7 @@ export class Bomb {
         for (let level = 0; level < this._range; level++) {
             let nextLocation = this.nextFlameLocation(direction, previouslocation);
             let fieldID = this._game.map.getFieldID(nextLocation.x, nextLocation.y);
-            if (this.canFlameCoverField(fieldID)) {
+            if (fieldID !== 1) {
                 locations.push(nextLocation);
                 if (fieldID === 2) {
                     //so flame would not go further from this destructible wall
@@ -98,16 +98,6 @@ export class Bomb {
             previouslocation = nextLocation;
         }
         return locations;
-    }
-
-    canFlameCoverField(fieldID: number): boolean {
-        switch (fieldID) {
-            case 1:
-                //indestructible - will not let flame go there, no other actions
-                return false;
-            default:
-                return true;
-        }
     }
 
     broadcastBombPlaced(): void {
