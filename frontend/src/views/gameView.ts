@@ -49,7 +49,7 @@ export const gameView = () => {
         ]);
     }
 
-    const handleSumbit = (e) => {
+    const handleSumbit = (e: any) => {
         if (e.key === "Enter") {
             //send message to BE
             if (e.target.value === "") return
@@ -83,7 +83,7 @@ export const gameView = () => {
             return
         }
 
-        const validMoves = {
+        const validMoves: Record<string, string> = {
             "a": "a",
             "s": "s",
             "d": "d",
@@ -144,7 +144,7 @@ export const gameView = () => {
                     createDOMElement("div", { class: "h-[60px] border-2 border-black flex items-center justify-center font-inter text-3xl font-normal text-black uppercase" }, ["chat"]), // Chat text
                     createDOMElement("div", { class: "p-4 flex-1 border-2 border-black" }, [
                         createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" }),
-                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
+                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e: any) => { handleSumbit(e) }) // Input box
                     ]) // Inner container
                 ]), // Chat bar on the left
 

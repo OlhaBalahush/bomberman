@@ -21,6 +21,19 @@ export type ChatClientMessage = {
     sender: string,
 };
 
+export type GameClientIinput = {
+    gameID: string,
+    userID: string,
+    key: string,
+}
+
+export type PlayerCords = {
+    playerIndex: number,
+    previousPosition: { x: number, y: number }
+    futurePosition: { x: number, y: number }
+}
+
+
 type ConnectServerMessage = {
     clientID: string
 }
