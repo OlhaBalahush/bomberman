@@ -171,6 +171,9 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             currentGame.players[playerindex].loseLife(currentGame, playerindex);
         }
 
+        //check for powerups in the new cords:
+
+
         return payload;
     } else {
         return
