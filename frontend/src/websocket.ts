@@ -71,6 +71,7 @@ export const connectWS = () => {
                 const mapUpdateData: ReplaceBlockServerMessage = eventData;
                 console.log("data that I got:" + mapUpdateData.coordinates, + mapUpdateData.newCellID)
                 replaceCellOnMap(mapUpdateData);
+                console.log("left replaceCellOnMap")
                 break;
             case WsMessageTypes.PlayerDamage:
                 const damagedPlayerData: PlayerDamageServerMessage = eventData;
