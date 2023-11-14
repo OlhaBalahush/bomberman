@@ -81,7 +81,10 @@ async function handleClientMessages(message: string) {
                     break;
                 }
 
-                if (bombOwner.canPlaceBomb()) {
+                const bombLocation = bombOwner.position;
+
+                //can place if player has not reached max bombs or there is no bomb at this location already
+                if (bombOwner.canPlaceBomb() && (currentGame.map.getFieldID(bombLocation.x, bombLocation.y) !== 7)) {
                     bombOwner.increaseActiveBombs();
                     new Bomb(bombOwner, currentGame);
                 }
