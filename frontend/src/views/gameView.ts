@@ -92,10 +92,6 @@ export const handleKeyDown = (event: any) => {
     // Set the last key press time
     lastKeyPressTime = currentTime;
 
-
-
-
-
     const payload: GameClientIinput = {
         gameID: gameID,
         userID: playerID,

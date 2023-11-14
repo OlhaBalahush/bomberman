@@ -90,11 +90,13 @@ export const connectWS = () => {
     };
 
     socket.onclose = (event) => {
+        sessionStorage.clear();
         if (event.wasClean) {
             console.log('WebSocket connection closed cleanly, code:', event.code, 'reason:', event.reason);
         } else {
             console.error('WebSocket connection abruptly closed');
         }
+        navigateTo("/")
     };
 
     socket.addEventListener('error', (event) => {

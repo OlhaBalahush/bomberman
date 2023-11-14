@@ -23,6 +23,8 @@ export const gameOver = () => {
 
     document.addEventListener(WsMessageTypes.GameOver, ((e: CustomEvent) => {
         document.removeEventListener("keydown", handleKeyDown);
+        sessionStorage.removeItem("gameID");
+        sessionStorage.removeItem("playerSpeed");
         const ele = document.getElementById("gameOverContainer")
         ele?.classList.remove("hidden")
         const text = document.getElementById("gameOverText")
