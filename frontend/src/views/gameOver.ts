@@ -2,6 +2,7 @@ import { createDOMElement } from "mini-framework";
 import { navigateTo } from "../main";
 import { sendEvent, socket } from "../websocket";
 import { WsMessageTypes } from "../models/constants";
+import { handleKeyDown } from "./gameView";
 
 export const gameOver = () => {
     const exitGame = (e) => {
@@ -21,6 +22,7 @@ export const gameOver = () => {
     }
 
     document.addEventListener(WsMessageTypes.GameOver, ((e: CustomEvent) => {
+        document.removeEventListener("keydown", handleKeyDown);
         const ele = document.getElementById("gameOverContainer")
         ele?.classList.remove("hidden")
         const text = document.getElementById("gameOverText")

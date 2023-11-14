@@ -16,5 +16,6 @@ export enum WsMessageTypes {
     ReplaceBlock = "replaceBlock",
     PlayerDamage = "playerDamage",
     ImmunityEnd = "immunityEnd",
+    AddPlayerSpeed = "addPlayerSpeed",
 }
 

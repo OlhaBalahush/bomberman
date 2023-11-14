@@ -31,14 +31,17 @@ export function MovePlayer(data: PlayerCords) {
     }
 }
 
-const HanldeKeyDown = (event: any) => {
+let lastKeyPressTime: number | null = null;
+
+export const handleKeyDown = (event: any) => {
+
+
     //check if user in focused into the game and not into the chat:
     const chatInput = document.getElementById("chat-input")
 
     if (document.activeElement === chatInput) {
         return
     }
-
     const validMoves: Record<string, string> = {
         "a": "a",
         "s": "s",
@@ -76,6 +79,22 @@ const HanldeKeyDown = (event: any) => {
         })
         return;
     }
+
+    // Check if the key was pressed within the last 500ms
+    let speedMultiplierStr = sessionStorage.getItem("playerSpeed")
+    let speedMultiplierInt = 1
+    if (speedMultiplierStr) speedMultiplierInt = parseInt(speedMultiplierStr)
+    const currentTime = Date.now();
+    if (lastKeyPressTime && currentTime - lastKeyPressTime < 400 / speedMultiplierInt) {
+        return;
+    }
+
+    // Set the last key press time
+    lastKeyPressTime = currentTime;
+
+
+
+
 
     const payload: GameClientIinput = {
         gameID: gameID,
@@ -129,8 +148,8 @@ export const gameView = () => {
     }) as EventListener)
 
     const map = renderMap(flatmap)
-    document.removeEventListener("keydown", HanldeKeyDown)
-    document.addEventListener("keydown", HanldeKeyDown);
+    document.removeEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
 
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [

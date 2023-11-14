@@ -176,8 +176,6 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             currentGame.players[playerindex].loseLife(currentGame, playerindex);
         }
 
-
-        console.log("this is the upcoming cell value: ")
         //check for powerups in the new cords:
         if (cellValue === 9 || cellValue === 10 || cellValue === 11) {
             //prodcast a remove class obejct to all players
@@ -194,6 +192,14 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             switch (cellValue) {
                 case 9:
                     currentGame.players[playerindex].addSpeed(1)
+                    //send the new speed to FE
+                    const playerSpeed = currentGame.players[playerindex].speed
+                    const addPlayerSpeedMsg: wsEvent = {
+                        type: WsMessageTypes.AddPlayerSpeed,
+                        payload: { speed: playerSpeed },
+                    }
+                    broadcastMessageToGamePlayers(addPlayerSpeedMsg, [currentGame.players[playerindex]])
+
                     break;
                 case 10:
                     currentGame.players[playerindex].addExplosionRange(1)

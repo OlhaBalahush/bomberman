@@ -69,6 +69,9 @@ export class gamePlayer {
 
     addSpeed(speed: number): void {
         this._powerups.speed += speed;
+        //send new speed to FE:
+        const payload = { speed: this._powerups.speed }
+
     }
 
     get position(): { x: number; y: number } {

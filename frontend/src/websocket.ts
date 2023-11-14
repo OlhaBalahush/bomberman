@@ -81,6 +81,9 @@ export const connectWS = () => {
                 const immunityEndData: ImmunityEnd = eventData;
                 disableImmunityAnimation(immunityEndData);
                 break;
+            case WsMessageTypes.AddPlayerSpeed:
+                const speed = eventData.speed;
+                sessionStorage.setItem("playerSpeed", speed)
             default:
                 console.log("error unknow ws connection message type: ", event.type)
         }
