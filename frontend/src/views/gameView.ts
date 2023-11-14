@@ -47,6 +47,10 @@ export const handleKeyDown = (event: any) => {
         "s": "s",
         "d": "d",
         "w": "w",
+        "A": "A",
+        "S": "S",
+        "D": "D",
+        "W": "W",
         //spacebar
         " ": "spacebar"
     }
@@ -153,7 +157,7 @@ export const gameView = () => {
         createDOMElement("div", { class: "border-1 border-black flex flex-col", id: "gameBox" }, [
             createDOMElement("div", { class: "h-[57px] bg-neutral-200 border-2 border-black p-2 flex items-center" }, [
                 createDOMElement("div", { class: "pr-4 font-inter text-2xl font-normal text-black uppercase flex-none" }, ["TIME: " + gameTime.getState()]),
-                createDOMElement("div", { class: "font-inter text-2xl font-normal text-black uppercase flex-auto text-center" }, ["lives: " + PlayerHealth.getState()])
+                createDOMElement("div", { class: "font-inter text-2xl font-normal text-black uppercase flex-auto text-center", id: "lives" }, ["lives: " + PlayerHealth.getState()])
             ]), // Top bar
 
             createDOMElement("div", { class: "flex h-[780px]" }, [

@@ -130,21 +130,25 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     let newCords;
     switch (message.key) {
         case "w":
+        case "W":
             //up
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y - 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
             break;
         case "s":
+        case "S":
             //down
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y + 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
             break;
         case "a":
+        case "A":
             //left
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x - 1, playersPOS.y)))
             newCords = { x: playersPOS.x - 1, y: playersPOS.y }
             break;
         case "d":
+        case "D":
             //right
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x + 1, playersPOS.y)))
             newCords = { x: playersPOS.x + 1, y: playersPOS.y }
@@ -154,7 +158,7 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
     }
 
     //if valid, change the map object and player objects position properties to new ones and return payload
-    const cellValue = CURRENTMAP[newCords.y][newCords.x]
+    const cellValue = currentGame.map.gameMap[newCords.y][newCords.x]
 
     if (validMove) {
         const previousField = currentGame.map.getFieldID(playersPOS.x, playersPOS.y)

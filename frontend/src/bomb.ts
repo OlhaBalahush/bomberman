@@ -135,7 +135,10 @@ export function handlePlayerLifeLost(damagedPlayerData: PlayerDamageServerMessag
 
     if (sessionStorage.getItem("clientID") === damagedPlayerData.playerID) {
         //TODO: check how to use the state management thing, update lives left for user that lost life
+        const livesLeftContainer = document.querySelector("#lives")
+        if (livesLeftContainer) livesLeftContainer.textContent = "lives: " + damagedPlayerData.livesRemaining
         //also remove player from game when dead, and merge with end game code
+
     }
 }
 
