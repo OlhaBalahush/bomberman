@@ -21,6 +21,7 @@ export class Game {
 
     addPlayer(id: string, username: string): void {
         let player = new gamePlayer(id, username)
+        player.setPlayerNumber(this._players.length);
         this._players.push(player);
 
     }
@@ -53,7 +54,7 @@ export class Game {
         this.checkGameOver()
     }
 
-    checkGameOver():void{
+    checkGameOver(): void {
         const alive = this._players = this._players.filter(player => {
             if (player.lives < 1) this.gameOver(player.id, "game over!")
             return player.lives > 0
@@ -64,7 +65,27 @@ export class Game {
         }
     }
 
-    gameOver(playerID:string, message: string):void{
+    removePlayerFromMapView(playerID: string): void {
+        const deadPlayer = this._players.find(player => player.id === playerID)
+        let playerNumber;
+        if (deadPlayer) {
+            playerNumber = deadPlayer.playerNumber
+        } else {
+            console.log("no player number found, somethign is wrong")
+        }
+
+        const event: wsEvent = {
+            type: WsMessageTypes.removePlayerFromMapView,
+            payload: {
+                playerNumber: playerNumber
+            }
+        }
+
+        broadcastMessageToGamePlayers(event, this._players)
+
+    }
+
+    gameOver(playerID: string, message: string): void {
         const event: wsEvent = {
             type: WsMessageTypes.GameOver,
             payload: {
@@ -73,6 +94,10 @@ export class Game {
         }
         const wsClient = clientsHashMap.get(playerID)
         if (wsClient) broadcastMessage(event, [wsClient])
+
+        if (message === "game over!") {
+            this.removePlayerFromMapView(playerID)
+        }
     }
 
     public get map(): gameMap {

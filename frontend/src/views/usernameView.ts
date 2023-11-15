@@ -34,7 +34,8 @@ export const usernameView = () => {
                     placeholder: "Enter your username",
                     maxLength: 20,
                     required: true,
-                    value: username.getState()
+                    value: username.getState(),
+                    autofocus: true,
                 }, [])
                     .onChange$(handleChange),
                 createDOMElement("button", {

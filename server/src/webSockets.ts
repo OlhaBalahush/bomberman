@@ -35,6 +35,7 @@ export function initWsServer(server: http.Server) {
     })
 }
 
+
 async function handleClientMessages(message: string) {
     const messageJSON = parseClientMessage(message);
     if (messageJSON) {
@@ -97,6 +98,8 @@ async function handleClientMessages(message: string) {
     }
 }
 
+
+
 function validateUserMove(currentGame: Game | undefined, message: GameClientIinput): PlayerCords | undefined {
     if (!currentGame) {
         console.log("no game found, something went wrong");
@@ -112,34 +115,42 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         }
     });
 
+    const playerNumber = currentGame.players[playerindex].playerNumber
+
     const playersPOS = currentGame.players[playerindex].position
     if (!playersPOS) {
         console.log("no player pos found, this is a problem")
         return
     }
 
-    //these are numbers of either free spots (0) or other players (3,4,5,6) that the user can walk into:
-    const validNumbers = [0, 3, 4, 5, 6]
+    const CURRENTMAP = currentGame.map.gameMap
+
+    //these are numbers of either free spots (0), other players (3,4,5,6) or powerups (9,10,11) that the user can walk into:
+    const validNumbers = [0, 3, 4, 5, 6, 9, 10, 11]
     //validate the move:
     let validMove = false
     let newCords;
     switch (message.key) {
         case "w":
+        case "W":
             //up
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y - 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y - 1 }
             break;
         case "s":
+        case "S":
             //down
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x, playersPOS.y + 1)))
             newCords = { x: playersPOS.x, y: playersPOS.y + 1 }
             break;
         case "a":
+        case "A":
             //left
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x - 1, playersPOS.y)))
             newCords = { x: playersPOS.x - 1, y: playersPOS.y }
             break;
         case "d":
+        case "D":
             //right
             validMove = validNumbers.includes((currentGame.map.getFieldID(playersPOS.x + 1, playersPOS.y)))
             newCords = { x: playersPOS.x + 1, y: playersPOS.y }
@@ -148,7 +159,8 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             return
     }
 
-    //if valid, change the map object and player objects position properties to new ones and return payload
+    const cellValue = currentGame.map.gameMap[newCords.y][newCords.x]
+
     if (validMove) {
         const previousField = currentGame.map.getFieldID(playersPOS.x, playersPOS.y)
 
@@ -157,10 +169,10 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             currentGame.map.setFieldID(playersPOS.x, playersPOS.y, 0);
         }
 
-        currentGame.map.setFieldID(newCords.x, newCords.y, playerindex + 3); // index + 3 because of the way we have the players set up on the map, look at table below
+        currentGame.map.setFieldID(newCords.x, newCords.y, playerNumber + 3); // index + 3 because of the way we have the players set up on the map, look at table below
 
         const payload: PlayerCords = {
-            playerIndex: playerindex,
+            playerIndex: playerNumber,
             previousPosition: { x: playersPOS.x, y: playersPOS.y },
             futurePosition: newCords
         }
@@ -168,7 +180,37 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
 
         if (currentGame.map.isActiveFlameOnCell(newCords)) {
-            currentGame.players[playerindex].loseLife(currentGame, playerindex);
+            currentGame.players[playerindex].loseLife(currentGame, playerindex); //this might need to be playerNumber as well TODO: checkup on this
+        }
+
+        //check for powerups in the new cords:
+        if (cellValue === 9 || cellValue === 10 || cellValue === 11) {
+            //prodcast a remove class obejct to all players
+            const replaecBlockPayload = {
+                coordinates: { x: newCords.x, y: newCords.y },
+                newCellID: 0,
+            }
+            const messageContent = new wsEvent(WsMessageTypes.ReplaceBlock, replaecBlockPayload)
+            broadcastMessageToGamePlayers(messageContent, currentGame.players)
+            switch (cellValue) {
+                case 9:
+                    currentGame.players[playerindex].addSpeed(1)
+                    //send the new speed to FE
+                    const playerSpeed = currentGame.players[playerindex].speed
+                    const addPlayerSpeedMsg: wsEvent = {
+                        type: WsMessageTypes.AddPlayerSpeed,
+                        payload: { speed: playerSpeed },
+                    }
+                    broadcastMessageToGamePlayers(addPlayerSpeedMsg, [currentGame.players[playerindex]])
+
+                    break;
+                case 10:
+                    currentGame.players[playerindex].addExplosionRange(1)
+                    break;
+                case 11:
+                    currentGame.players[playerindex].addMaxBombCount(1)
+                    break;
+            }
         }
 
         return payload;
@@ -211,12 +253,12 @@ export function addPlayerToLobby(player: wsPlayer): void {
         if (lobbyToJoin?.getCountOfPlayers() === 2) {
             lobbyToJoin.timer.start(
                 // TODO change back to 20s 
-                5, // 2 * tenSeconds,
+                20, // 2 * tenSeconds,
                 lobbyToJoin,
                 () => {
                     //start 10 second timer, if 20 sec finished but less than 4 players in lobby
                     lobbyToJoin.timer.stop();
-                    lobbyToJoin.timer.start(3, //tenSeconds, 
+                    lobbyToJoin.timer.start(10, //tenSeconds, 
                         lobbyToJoin,
                         startGame
                     );

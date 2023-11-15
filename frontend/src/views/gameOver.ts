@@ -2,16 +2,18 @@ import { createDOMElement } from "mini-framework";
 import { navigateTo } from "../main";
 import { sendEvent, socket } from "../websocket";
 import { WsMessageTypes } from "../models/constants";
+import { handleKeyDown } from "./gameView";
+
 
 export const gameOver = () => {
-    const exitGame = (e) => {
+    const exitGame = (e: any) => {
         e.preventDefault()
         socket.close()
         navigateTo("/")
         return
     }
 
-    const restartGame = (e) => {
+    const restartGame = (e: any) => {
         e.preventDefault()
         sendEvent(WsMessageTypes.RestartGame, {
             username: sessionStorage.getItem("username"),
@@ -21,6 +23,11 @@ export const gameOver = () => {
     }
 
     document.addEventListener(WsMessageTypes.GameOver, ((e: CustomEvent) => {
+        document.removeEventListener("keydown", handleKeyDown);
+        sessionStorage.removeItem("gameID");
+        sessionStorage.removeItem("playerSpeed");
+        const livesElement = document.getElementById("lives")
+        if (livesElement) livesElement.textContent = "LIVES: 0"
         const ele = document.getElementById("gameOverContainer")
         ele?.classList.remove("hidden")
         const text = document.getElementById("gameOverText")

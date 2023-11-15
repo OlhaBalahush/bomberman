@@ -31,9 +31,84 @@ export function MovePlayer(data: PlayerCords) {
     }
 }
 
+let lastKeyPressTime: number | null = null;
+
+export const handleKeyDown = (event: any) => {
+    //check if user in focused into the game and not into the chat:
+    const chatInput = document.getElementById("chat-input")
+
+    if (document.activeElement === chatInput) {
+        return
+    }
+    const validMoves: Record<string, string> = {
+        "a": "a",
+        "s": "s",
+        "d": "d",
+        "w": "w",
+        "A": "A",
+        "S": "S",
+        "D": "D",
+        "W": "W",
+        " ": "spacebar"
+    }
+
+    let key: string;
+
+    if (validMoves[event.key]) {
+        key = event.key
+    } else {
+        return
+    }
+
+    const gameID = sessionStorage.getItem("gameID")
+    if (!gameID) {
+        console.log("no game ID available")
+        return
+    }
+
+    const playerID = sessionStorage.getItem("clientID")
+    if (!playerID) {
+        console.log("no player ID available")
+        return
+    }
+
+    if (key == " ") {
+        sendEvent(WsMessageTypes.BombPlaced, {
+            gameID: gameID,
+            playerID: playerID
+        })
+        return;
+    }
+
+    // Check if the key was pressed within the last 350ms
+    let speedMultiplierStr = sessionStorage.getItem("playerSpeed")
+    let speedMultiplierInt = 1
+    if (speedMultiplierStr) speedMultiplierInt = parseInt(speedMultiplierStr)
+    const currentTime = Date.now();
+    if (lastKeyPressTime && currentTime - lastKeyPressTime < 350 / speedMultiplierInt) {
+        return;
+    }
+
+    // Set the last key press time
+    lastKeyPressTime = currentTime;
+
+    const payload: GameClientIinput = {
+        gameID: gameID,
+        userID: playerID,
+        key: key,
+    }
+
+    sendEvent(WsMessageTypes.GameInput, payload)
+}
+
+export function removePlayerFromMapView(userNumber: number) {
+    const playerElemToHide = document.getElementById(`character-${userNumber}`)
+    if (playerElemToHide) playerElemToHide.classList.toggle("hidden")
+}
+
 export const gameView = () => {
-    let gameTime = useStateManager("240") //TODO connect with be
-    let PlayerHealth = useStateManager("3")//TODO connect with be
+    let gameTime = useStateManager("∞")
+    let PlayerHealth = useStateManager("3")
     let chatHistory: ChatMessage[] = [];
     const flatmap = sessionStorage.getItem("map");
 
@@ -49,7 +124,7 @@ export const gameView = () => {
         ]);
     }
 
-    const handleSumbit = (e) => {
+    const handleSumbit = (e: any) => {
         if (e.key === "Enter") {
             //send message to BE
             if (e.target.value === "") return
@@ -74,61 +149,8 @@ export const gameView = () => {
     }) as EventListener)
 
     const map = renderMap(flatmap)
-
-    document.addEventListener('keydown', (event) => {
-        //check if user in focused into the game and not into the chat:
-        const chatInput = document.getElementById("chat-input")
-
-        if (document.activeElement === chatInput) {
-            return
-        }
-
-        const validMoves = {
-            "a": "a",
-            "s": "s",
-            "d": "d",
-            "w": "w",
-            //spacebar
-            " ": "spacebar"
-        }
-
-        let key: string;
-
-        if (validMoves[event.key]) {
-            key = event.key
-        } else {
-            // console.log("no correct key pressed")
-            return
-        }
-
-        const gameID = sessionStorage.getItem("gameID")
-        if (!gameID) {
-            console.log("no game ID available")
-            return
-        }
-
-        const playerID = sessionStorage.getItem("clientID")
-        if (!playerID) {
-            console.log("no player ID available")
-            return
-        }
-
-        if (key == " ") {
-            sendEvent(WsMessageTypes.BombPlaced, {
-                gameID: gameID,
-                playerID: playerID
-            })
-            return;
-        }
-
-        const payload: GameClientIinput = {
-            gameID: gameID,
-            userID: playerID,
-            key: key,
-        }
-
-        sendEvent(WsMessageTypes.GameInput, payload)
-    });
+    document.removeEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
 
 
     return createDOMElement("div", { class: "w-screen h-screen flex items-center justify-center bg-neutral-600" }, [
@@ -136,7 +158,7 @@ export const gameView = () => {
         createDOMElement("div", { class: "border-1 border-black flex flex-col", id: "gameBox" }, [
             createDOMElement("div", { class: "h-[57px] bg-neutral-200 border-2 border-black p-2 flex items-center" }, [
                 createDOMElement("div", { class: "pr-4 font-inter text-2xl font-normal text-black uppercase flex-none" }, ["TIME: " + gameTime.getState()]),
-                createDOMElement("div", { class: "font-inter text-2xl font-normal text-black uppercase flex-auto text-center" }, ["lives: " + PlayerHealth.getState()])
+                createDOMElement("div", { class: "font-inter text-2xl font-normal text-black uppercase flex-auto text-center", id: "lives" }, ["lives: " + PlayerHealth.getState()])
             ]), // Top bar
 
             createDOMElement("div", { class: "flex h-[780px]" }, [
@@ -144,7 +166,7 @@ export const gameView = () => {
                     createDOMElement("div", { class: "h-[60px] border-2 border-black flex items-center justify-center font-inter text-3xl font-normal text-black uppercase" }, ["chat"]), // Chat text
                     createDOMElement("div", { class: "p-4 flex-1 border-2 border-black" }, [
                         createDOMElement("div", { class: "h-[620px] flex flex-col justify-end border-2 border-black p-4 overflow-y-scroll", id: "chat-history" }),
-                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e) => { handleSumbit(e) }) // Input box
+                        createDOMElement("input", { class: "w-[260px] h-[40px] mt-4 p-1 border-2 border-black", id: "chat-input", placeholder: "Enter your message..." }, []).onKeyUp$((e: any) => { handleSumbit(e) }) // Input box
                     ]) // Inner container
                 ]), // Chat bar on the left
 
