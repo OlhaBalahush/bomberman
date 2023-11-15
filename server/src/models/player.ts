@@ -23,7 +23,7 @@ export class gamePlayer {
         this._lives = 3
         this._powerups = {
             maxBombCount: 1,
-            explosionRange: 2,
+            explosionRange: 1,
             speed: 1
         }
         this._playerNumber = 0

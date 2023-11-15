@@ -1,12 +1,11 @@
 import WebSocket from "ws";
 
-//TODO
 export class wsPlayer {
     private _id: string;
-    private _username?: string ;
+    private _username?: string;
     conn: WebSocket;
 
-    constructor(id: string, conn:WebSocket) {
+    constructor(id: string, conn: WebSocket) {
         this._id = id;
         this.conn = conn;
     }

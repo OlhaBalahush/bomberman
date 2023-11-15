@@ -227,7 +227,7 @@ export class Bomb {
         const playersInFlames = this._game.players.filter(player => player.position.x === location.x && player.position.y === location.y)
 
         playersInFlames.forEach(player => {
-            const playerIndex = player.playerNumber //todo, this is wrong
+            const playerIndex = player.playerNumber
             player.loseLife(this._game, playerIndex);
         })
     }

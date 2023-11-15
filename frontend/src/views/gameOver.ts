@@ -26,6 +26,8 @@ export const gameOver = () => {
         document.removeEventListener("keydown", handleKeyDown);
         sessionStorage.removeItem("gameID");
         sessionStorage.removeItem("playerSpeed");
+        const livesElement = document.getElementById("lives")
+        if (livesElement) livesElement.textContent = "LIVES: 0"
         const ele = document.getElementById("gameOverContainer")
         ele?.classList.remove("hidden")
         const text = document.getElementById("gameOverText")

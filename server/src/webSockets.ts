@@ -253,12 +253,12 @@ export function addPlayerToLobby(player: wsPlayer): void {
         if (lobbyToJoin?.getCountOfPlayers() === 2) {
             lobbyToJoin.timer.start(
                 // TODO change back to 20s 
-                5, // 2 * tenSeconds,
+                20, // 2 * tenSeconds,
                 lobbyToJoin,
                 () => {
                     //start 10 second timer, if 20 sec finished but less than 4 players in lobby
                     lobbyToJoin.timer.stop();
-                    lobbyToJoin.timer.start(3, //tenSeconds, 
+                    lobbyToJoin.timer.start(10, //tenSeconds, 
                         lobbyToJoin,
                         startGame
                     );
