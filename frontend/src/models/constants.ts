@@ -17,5 +17,6 @@ export enum WsMessageTypes {
     PlayerDamage = "playerDamage",
     ImmunityEnd = "immunityEnd",
     AddPlayerSpeed = "addPlayerSpeed",
+    removePlayerFromMapView = "removePlayerFromMapView",
 }
 

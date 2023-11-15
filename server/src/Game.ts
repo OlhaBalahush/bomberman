@@ -65,6 +65,26 @@ export class Game {
         }
     }
 
+    removePlayerFromMapView(playerID: string): void {
+        const deadPlayer = this._players.find(player => player.id === playerID)
+        let playerNumber;
+        if (deadPlayer) {
+            playerNumber = deadPlayer.playerNumber
+        } else {
+            console.log("no player number found, somethign is wrong")
+        }
+
+        const event: wsEvent = {
+            type: WsMessageTypes.removePlayerFromMapView,
+            payload: {
+                playerNumber: playerNumber
+            }
+        }
+
+        broadcastMessageToGamePlayers(event, this._players)
+
+    }
+
     gameOver(playerID: string, message: string): void {
         const event: wsEvent = {
             type: WsMessageTypes.GameOver,
@@ -74,6 +94,10 @@ export class Game {
         }
         const wsClient = clientsHashMap.get(playerID)
         if (wsClient) broadcastMessage(event, [wsClient])
+
+        if (message === "game over!") {
+            this.removePlayerFromMapView(playerID)
+        }
     }
 
     public get map(): gameMap {

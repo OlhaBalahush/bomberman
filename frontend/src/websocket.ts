@@ -4,6 +4,7 @@ import { EnterLobbyServerMessage, TimerUpdates, PlayerCords, BombPlacedServerMes
 import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
 import { MovePlayer } from "./views/gameView";
 import { placeBombOnMap, placeFlames, removeFlames, replaceCellOnMap, handlePlayerLifeLost, disableImmunityAnimation } from "./bomb";
+import { removePlayerFromMapView } from "./views/gameView";
 
 export let socket: WebSocket
 
@@ -41,7 +42,7 @@ export const connectWS = () => {
                 break
             case WsMessageTypes.StartGame:
                 sessionStorage.setItem("gameID", eventData.gameID)
-                sessionStorage.setItem("map", eventData.map.map(row => row.join(',')).join(','))
+                sessionStorage.setItem("map", eventData.map.map((row: any) => row.join(',')).join(','))
                 navigateTo("/game")
                 break
             case WsMessageTypes.ChatMessage:
@@ -84,6 +85,10 @@ export const connectWS = () => {
             case WsMessageTypes.AddPlayerSpeed:
                 const speed = eventData.speed;
                 sessionStorage.setItem("playerSpeed", speed)
+                break;
+            case WsMessageTypes.removePlayerFromMapView:
+                const playerNumber = eventData.playerNumber;
+                removePlayerFromMapView(playerNumber)
             default:
                 console.log("error unknow ws connection message type: ", event.type)
         }

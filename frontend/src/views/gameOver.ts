@@ -4,15 +4,16 @@ import { sendEvent, socket } from "../websocket";
 import { WsMessageTypes } from "../models/constants";
 import { handleKeyDown } from "./gameView";
 
+
 export const gameOver = () => {
-    const exitGame = (e) => {
+    const exitGame = (e: any) => {
         e.preventDefault()
         socket.close()
         navigateTo("/")
         return
     }
 
-    const restartGame = (e) => {
+    const restartGame = (e: any) => {
         e.preventDefault()
         sendEvent(WsMessageTypes.RestartGame, {
             username: sessionStorage.getItem("username"),

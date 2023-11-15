@@ -223,12 +223,11 @@ export class Bomb {
         }
     }
 
-
-
     checkHitPlayersAndReduceLife(location: Coordinates) {
         const playersInFlames = this._game.players.filter(player => player.position.x === location.x && player.position.y === location.y)
+
         playersInFlames.forEach(player => {
-            const playerIndex = this._game.players.indexOf(player)
+            const playerIndex = player.playerNumber //todo, this is wrong
             player.loseLife(this._game, playerIndex);
         })
     }

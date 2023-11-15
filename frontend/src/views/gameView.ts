@@ -105,6 +105,11 @@ export const handleKeyDown = (event: any) => {
     sendEvent(WsMessageTypes.GameInput, payload)
 }
 
+export function removePlayerFromMapView(userNumber: number) {
+    const playerElemToHide = document.getElementById(`character-${userNumber}`)
+    if (playerElemToHide) playerElemToHide.classList.toggle("hidden")
+}
+
 export const gameView = () => {
     let gameTime = useStateManager("240") //TODO connect with be
     let PlayerHealth = useStateManager("3")//TODO connect with be
