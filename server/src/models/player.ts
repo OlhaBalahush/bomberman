@@ -6,6 +6,7 @@ import { broadcastMessageToGamePlayers } from "../webSockets";
 export class gamePlayer {
     private _id: string
     private _username: string
+    private _playerNumber: number // this is used to identify the player in the frontend for drawing purposes
     private _lives: number
     private _powerups: {
         maxBombCount: number
@@ -25,6 +26,7 @@ export class gamePlayer {
             explosionRange: 2,
             speed: 1
         }
+        this._playerNumber = 0
         // TODO adjust to have different position for different players
         this._position = { x: 0, y: 0 }
         this._immunityTimer = null;
@@ -49,6 +51,14 @@ export class gamePlayer {
 
     get maxBombCount(): number {
         return this._powerups.maxBombCount
+    }
+
+    get playerNumber(): number {
+        return this._playerNumber
+    }
+
+    setPlayerNumber(value: number) {
+        this._playerNumber = value
     }
 
     addMaxBombCount(count: number): void {

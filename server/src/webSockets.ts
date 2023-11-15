@@ -115,6 +115,8 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         }
     });
 
+    const playerNumber = currentGame.players[playerindex].playerNumber
+
     const playersPOS = currentGame.players[playerindex].position
     if (!playersPOS) {
         console.log("no player pos found, this is a problem")
@@ -168,10 +170,10 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             currentGame.map.setFieldID(playersPOS.x, playersPOS.y, 0);
         }
 
-        currentGame.map.setFieldID(newCords.x, newCords.y, playerindex + 3); // index + 3 because of the way we have the players set up on the map, look at table below
+        currentGame.map.setFieldID(newCords.x, newCords.y, playerNumber + 3); // index + 3 because of the way we have the players set up on the map, look at table below
 
         const payload: PlayerCords = {
-            playerIndex: playerindex,
+            playerIndex: playerNumber,
             previousPosition: { x: playersPOS.x, y: playersPOS.y },
             futurePosition: newCords
         }
@@ -179,7 +181,7 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
 
         if (currentGame.map.isActiveFlameOnCell(newCords)) {
-            currentGame.players[playerindex].loseLife(currentGame, playerindex);
+            currentGame.players[playerindex].loseLife(currentGame, playerindex); //tihs might need to be playerNumber as well TODO: checkup on this
         }
 
         //check for powerups in the new cords:

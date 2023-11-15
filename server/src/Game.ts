@@ -21,6 +21,7 @@ export class Game {
 
     addPlayer(id: string, username: string): void {
         let player = new gamePlayer(id, username)
+        player.setPlayerNumber(this._players.length);
         this._players.push(player);
 
     }
@@ -53,7 +54,7 @@ export class Game {
         this.checkGameOver()
     }
 
-    checkGameOver():void{
+    checkGameOver(): void {
         const alive = this._players = this._players.filter(player => {
             if (player.lives < 1) this.gameOver(player.id, "game over!")
             return player.lives > 0
@@ -64,7 +65,7 @@ export class Game {
         }
     }
 
-    gameOver(playerID:string, message: string):void{
+    gameOver(playerID: string, message: string): void {
         const event: wsEvent = {
             type: WsMessageTypes.GameOver,
             payload: {
