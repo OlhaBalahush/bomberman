@@ -34,8 +34,6 @@ export function MovePlayer(data: PlayerCords) {
 let lastKeyPressTime: number | null = null;
 
 export const handleKeyDown = (event: any) => {
-
-
     //check if user in focused into the game and not into the chat:
     const chatInput = document.getElementById("chat-input")
 
@@ -51,7 +49,6 @@ export const handleKeyDown = (event: any) => {
         "S": "S",
         "D": "D",
         "W": "W",
-        //spacebar
         " ": "spacebar"
     }
 
@@ -60,7 +57,6 @@ export const handleKeyDown = (event: any) => {
     if (validMoves[event.key]) {
         key = event.key
     } else {
-        // console.log("no correct key pressed")
         return
     }
 
@@ -84,12 +80,12 @@ export const handleKeyDown = (event: any) => {
         return;
     }
 
-    // Check if the key was pressed within the last 500ms
+    // Check if the key was pressed within the last 350ms
     let speedMultiplierStr = sessionStorage.getItem("playerSpeed")
     let speedMultiplierInt = 1
     if (speedMultiplierStr) speedMultiplierInt = parseInt(speedMultiplierStr)
     const currentTime = Date.now();
-    if (lastKeyPressTime && currentTime - lastKeyPressTime < 400 / speedMultiplierInt) {
+    if (lastKeyPressTime && currentTime - lastKeyPressTime < 350 / speedMultiplierInt) {
         return;
     }
 
@@ -111,8 +107,8 @@ export function removePlayerFromMapView(userNumber: number) {
 }
 
 export const gameView = () => {
-    let gameTime = useStateManager("240") //TODO connect with be
-    let PlayerHealth = useStateManager("3")//TODO connect with be
+    let gameTime = useStateManager("∞")
+    let PlayerHealth = useStateManager("3")
     let chatHistory: ChatMessage[] = [];
     const flatmap = sessionStorage.getItem("map");
 

@@ -159,7 +159,6 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
             return
     }
 
-    //if valid, change the map object and player objects position properties to new ones and return payload
     const cellValue = currentGame.map.gameMap[newCords.y][newCords.x]
 
     if (validMove) {
@@ -181,22 +180,18 @@ function validateUserMove(currentGame: Game | undefined, message: GameClientIinp
         currentGame.players[playerindex].setPosition(newCords.x, newCords.y)
 
         if (currentGame.map.isActiveFlameOnCell(newCords)) {
-            currentGame.players[playerindex].loseLife(currentGame, playerindex); //tihs might need to be playerNumber as well TODO: checkup on this
+            currentGame.players[playerindex].loseLife(currentGame, playerindex); //this might need to be playerNumber as well TODO: checkup on this
         }
 
         //check for powerups in the new cords:
         if (cellValue === 9 || cellValue === 10 || cellValue === 11) {
             //prodcast a remove class obejct to all players
-            //I need to check the map for powerups in the location
             const replaecBlockPayload = {
                 coordinates: { x: newCords.x, y: newCords.y },
                 newCellID: 0,
             }
-            console.log("sending remove thing to FE")
-            //send the prodcast to remove the value from FE
             const messageContent = new wsEvent(WsMessageTypes.ReplaceBlock, replaecBlockPayload)
             broadcastMessageToGamePlayers(messageContent, currentGame.players)
-            //also change the bsae value for the current player
             switch (cellValue) {
                 case 9:
                     currentGame.players[playerindex].addSpeed(1)

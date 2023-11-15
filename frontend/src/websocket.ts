@@ -43,7 +43,7 @@ export const connectWS = () => {
             case WsMessageTypes.StartGame:
                 sessionStorage.setItem("gameID", eventData.gameID)
                 sessionStorage.setItem("map", eventData.map.map((row: any) => row.join(',')).join(','))
-                navigateTo("/game")
+                navigateTo("/game")        // console.log("error: Coordinates")
                 break
             case WsMessageTypes.ChatMessage:
                 document.dispatchEvent(new CustomEvent("newMessage", { detail: eventData }))
@@ -89,6 +89,7 @@ export const connectWS = () => {
             case WsMessageTypes.removePlayerFromMapView:
                 const playerNumber = eventData.playerNumber;
                 removePlayerFromMapView(playerNumber)
+                break;
             default:
                 console.log("error unknow ws connection message type: ", event.type)
         }
