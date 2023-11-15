@@ -22,6 +22,11 @@ export type ChatClientMessage = {
     sender: string,
 };
 
+export type BombPlacedClientMessage = {
+    gameID: string,
+    playerID: string,
+};
+
 export type GameClientIinput = {
     gameID: string,
     userID: string,

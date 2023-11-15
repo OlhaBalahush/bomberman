@@ -1,8 +1,9 @@
 import { navigateTo } from "./main";
 import { WsMessageTypes } from "./models/constants";
-import { EnterLobbyServerMessage, TimerUpdates, PlayerCords } from "./models/wsMessage";
+import { EnterLobbyServerMessage, TimerUpdates, PlayerCords, BombPlacedServerMessage, BombExplosionServerMessage, ReplaceBlockServerMessage, PlayerDamageServerMessage, ImmunityEnd } from "./models/wsMessage";
 import { addPlayerCount, tenSecondTimer, twentySecondTimer, } from "./views/lobbyView";
 import { MovePlayer } from "./views/gameView";
+import { placeBombOnMap, placeFlames, removeFlames, replaceCellOnMap, handlePlayerLifeLost, disableImmunityAnimation } from "./bomb";
 
 export let socket: WebSocket
 
@@ -53,6 +54,30 @@ export const connectWS = () => {
                 const newCords = eventData as PlayerCords
                 MovePlayer(newCords)
                 break
+            case WsMessageTypes.BombPlaced:
+                const bombData: BombPlacedServerMessage = eventData;
+                placeBombOnMap(bombData.bombLocation);
+                break;
+            case WsMessageTypes.PlaceFlames:
+                let flamesData: BombExplosionServerMessage = eventData;
+                placeFlames(flamesData);
+                break;
+            case WsMessageTypes.RemoveFlames:
+                let flames: BombExplosionServerMessage = eventData;
+                removeFlames(flames);
+                break;
+            case WsMessageTypes.ReplaceBlock:
+                const mapUpdateData: ReplaceBlockServerMessage = eventData;
+                replaceCellOnMap(mapUpdateData);
+                break;
+            case WsMessageTypes.PlayerDamage:
+                const damagedPlayerData: PlayerDamageServerMessage = eventData;
+                handlePlayerLifeLost(damagedPlayerData);
+                break;
+            case WsMessageTypes.ImmunityEnd:
+                const immunityEndData: ImmunityEnd = eventData;
+                disableImmunityAnimation(immunityEndData);
+                break;
             default:
                 console.log("error unknow ws connection message type: ", event.type)
         }

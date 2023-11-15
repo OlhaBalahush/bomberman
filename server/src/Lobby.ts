@@ -13,7 +13,6 @@ export class Lobby {
         this._id = id;
         this._players = [];
         this._timer = new LobbyTimer();
-        console.log("new lobby created");
     }
 
     addPlayer(player: wsPlayer): void {
